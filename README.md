@@ -2,14 +2,14 @@
 
 ## About Me
 
-From the competitive world of sports to the dynamic realm of tech, I've seamlessly transitioned my passion for performance and precision into my professional career. As an ex-athlete, I bring discipline, teamwork, and strategic thinking to the table, qualities that have propelled my success in software development, data engineering, and product management.
+I am a social Swiss army knife of a software engineer with over 8 years of experience in software and data engineering in startups. My versatility as a developer is my biggest asset, as I can work at any part of a
+company’s tech stack. The wide toolset has allowed me to master self-organization and team prioritization to focus on what matters for the product and the business.
+
+I’m an ex-athlete, so teamwork, discipline, and strategic thinking are second nature to me. I take great pride in enabling my co-workers to be more efficient by removing blockers.
 
 ## Current Work
 
-I am currently working as a Software Engineer at [Twice](https://twice.market), previously known as Rentle. My role involves developing and maintaining scalable software and data solutions that enhance our product offerings. I focus on integrating data-driven insights into our development process to ensure we deliver high-quality, user-centric products. You can explore more about our projects and contributions on the [Twice GitHub page](https://github.com/rentle).
+I am currently working as a Software Engineer at [Twice](https://twicecommerce.com), a tech startup with both a B2B and P2P product. My role involves developing software and data solutions that enhance our products. This has allowed me to join two of my passions - data and software - to create value for users from data insights that otherwise wouldn’t be discovered.
 
 ## Professional Interests
-
-- **Data Science:** Transforming complex datasets into actionable insights to drive business value.
-- **Data Engineering:** Building robust data pipelines and architectures to support scalable data solutions.
-- **Product Management:** Bridging the gap between technology and business needs to deliver impactful products.
+Growth and Analytics, Data, Environment / BioTech, Web Development
