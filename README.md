@@ -9,7 +9,7 @@ I’m an ex-athlete, so teamwork, discipline, and strategic thinking are second 
 
 ## Current Work
 
-I am currently working as a Software Engineer at [Twice](https://twicecommerce.com), a tech startup with both a B2B and P2P product. My role involves developing software and data solutions that enhance our products. This has allowed me to join two of my passions - data and software - to create value for users from data insights that otherwise wouldn’t be discovered.
+I am currently working as a Software Engineer at [Gosta Labs](https://gostalabs.com), a B2B med tech startup. My role involves developing software and data solutions that enhance our products. This has allowed me to join two of my passions - data and software - to create value for users from data insights that otherwise wouldn’t be discovered.
 
 ## Professional Interests
 Growth and Analytics, Data, Environment / BioTech, Web Development
