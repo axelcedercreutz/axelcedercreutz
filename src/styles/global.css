@@ -25,7 +25,7 @@
   --card: #fbf9f4;
   --ink: #15171b;
   --ink-2: #464b53;
-  --ink-3: #676c74;
+  --ink-3: #5c6169;
   --line: #d5cec0;
   --line-2: #b9b1a1;
 
@@ -200,7 +200,7 @@ mark { background: linear-gradient(transparent 55%, var(--lime) 55%, var(--lime)
   [data-reveal].is-in { opacity: 1; transform: none; }
   .hero-word { display: inline-block; opacity: 0; transform: translateY(0.6em) rotate(2deg); animation: word-in 0.8s var(--ease) forwards; animation-delay: calc(var(--w) * 60ms + 120ms); }
   @keyframes word-in { to { opacity: 1; transform: none; } }
-  .marquee-track { animation: marquee 38s linear infinite; }
+  .marquee-track { animation: marquee 38s linear infinite; will-change: transform; }
   .marquee:hover .marquee-track { animation-play-state: paused; }
   @keyframes marquee { to { transform: translateX(-50%); } }
   [data-tilt] { transform-style: preserve-3d; transition: transform 0.4s var(--ease), box-shadow 0.35s var(--ease); }
