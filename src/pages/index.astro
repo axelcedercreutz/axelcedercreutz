@@ -16,8 +16,8 @@ const headline = "I build products end to end.";
 const words = headline.split(" ");
 
 const marquee = [
-  "Product engineering", "TypeScript", "Python", "Postgres", "Data pipelines", "Next.js", "Django",
-  "Design systems", "Expected goals", "Encryption, done properly", "Cloud Run", "Small teams",
+  "Product engineering", "TypeScript", "Python", "Postgres", "dbt + BigQuery", "React", "FastAPI",
+  "Growth experiments", "Expected goals", "Encryption, done properly", "Design systems", "Small teams",
   "Ship, measure, repeat", "Floorball", "No cookies",
 ];
 
@@ -30,7 +30,8 @@ const jsonLd = {
   email: `mailto:${site.email}`,
   sameAs: [site.github, site.linkedin],
   worksFor: { "@type": "Organization", name: site.employer.name, url: site.employer.url },
-  knowsAbout: ["Product engineering", "Full-stack web development", "Data engineering", "Applied statistics", "TypeScript", "Python", "PostgreSQL"],
+  knowsAbout: ["Product engineering", "Full-stack web development", "Data engineering", "Applied statistics", "TypeScript", "Python", "PostgreSQL", "BigQuery", "dbt"],
+  alumniOf: { "@type": "CollegeOrUniversity", name: "Aalto University" },
 };
 ---
 
@@ -47,7 +48,7 @@ const jsonLd = {
         </span>
       </h1>
       <p class="lede" data-reveal style="--i:2">
-        Interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in early-stage companies, first at {site.previous.name} and now in product at{" "}
+        Interface, data model, pipeline, deploy, and the on-call after. Building web applications since 2016: five years at {site.previous.name} as engineer and analytics lead, and since 2024 product engineer at{" "}
         <a href={site.employer.url} rel="noopener">{site.employer.name}</a>, {site.employer.blurb}. After hours I build tools for hockey people and a budgeting app for households, and I write about what I learn doing it.
       </p>
       <div class="cta" data-reveal style="--i:3">

@@ -9,12 +9,12 @@
     {
       "url": "https://www.linkedin.com/in/axel-cedercreutz",
       "label": "LinkedIn profile",
-      "source": "Linked from the 2017 axelcedercreutz.github.io site. LinkedIn blocks automated fetches; listed in the handoff for confirmation."
+      "source": "Listed on the CV (20 September 2026) and on the 2017 site."
     },
     {
       "url": "mailto:axel.cedercreutz@gmail.com",
       "label": "Email",
-      "source": "Commit author email on the rinkview repository; also the contact address on the 2017 site. Listed in the handoff for confirmation."
+      "source": "Contact address on the CV (20 September 2026); also the commit author email on the RinkView repository."
     },
     {
       "url": "https://gostalabs.com",
@@ -75,6 +75,11 @@
       "url": "https://github.com/axelcedercreutz/stupidhack-2021",
       "label": "StupidHack 2021 project",
       "source": "Public repository under the same GitHub account; README read."
+    },
+    {
+      "url": "https://nhl-fantasy-draft-tool-axelcedercreutzs-projects.vercel.app/",
+      "label": "Banger Board live app (Vercel)",
+      "source": "Linked as 'Live demo' from the CV dated 20 September 2026."
     }
   ]
 }
