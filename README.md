@@ -1,6 +1,6 @@
 # Hi, I'm Axel 👋
 
-**Product engineer.** I build products end to end: interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in startups, currently a software engineer at [Gosta Labs](https://gostalabs.com), a B2B med-tech startup in Finland.
+**Product engineer.** I build products end to end: interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in early-stage companies, first at Rentle and now in product at [Gosta Labs](https://gostalabs.com), a Helsinki healthtech startup building an AI operating system for oncology teams.
 
 Everything else, including case studies and a blog, lives at **[axelcedercreutz.fi](https://axelcedercreutz.fi)**.
 

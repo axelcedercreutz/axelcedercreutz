@@ -2,7 +2,6 @@
 /**
  * The hero's "player card": a scoreboard-style card with verified numbers.
  * Tilts with the pointer (see Base.astro), sits still under reduced motion.
- * 1,587 = 319 + 119 (RinkView) + 22 (Banger Board) + 1,127 (Budgy) tests, all run on the current commits.
  */
 import { site } from "../data/site";
 ---
@@ -16,15 +15,15 @@ import { site } from "../data/site";
   <p class="name">Cedercreutz</p>
   <p class="pos">Product engineer · full stack, data, infra</p>
   <dl class="stats">
+    <div><dt>Now</dt><dd>Product, {site.employer.name}</dd></div>
+    <div><dt>Before</dt><dd>{site.previous.name}</dd></div>
     <div><dt>Years in startups</dt><dd><span data-count="8+">8+</span></dd></div>
-    <div><dt>Current team</dt><dd>{site.employer.name}</dd></div>
-    <div><dt>Products shipped solo</dt><dd><span data-count="3">3</span></dd></div>
-    <div><dt>Tests green across them</dt><dd><span data-count="1,587">1,587</span></dd></div>
-    <div><dt>NHL games in RinkView</dt><dd><span data-count="1,312">1,312</span></dd></div>
-    <div><dt>Cookies on this site</dt><dd><span data-count="0">0</span></dd></div>
+    <div><dt>Based in</dt><dd>Helsinki</dd></div>
+    <div><dt>Side projects live</dt><dd><span data-count="3">3</span></dd></div>
+    <div><dt>Former</dt><dd>Top-league floorball</dd></div>
   </dl>
   <div class="foot mono">
-    <span><i class="live" aria-hidden="true"></i>On shift · {site.location}</span>
+    <span><i class="live" aria-hidden="true"></i>On shift · Helsinki</span>
     <span>{site.url.replace("https://", "")}</span>
   </div>
   <span class="sticker" aria-hidden="true">No handoffs</span>

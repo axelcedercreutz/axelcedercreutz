@@ -4,7 +4,7 @@ import Todo from "../components/Todo.astro";
 import { site } from "../data/site";
 ---
 
-<Base title="About" description="Who Axel Cedercreutz is, how he works, and the work history behind it. Product engineer in Finland, currently at Gosta Labs." path="/about">
+<Base title="About" description="Who Axel Cedercreutz is, how he works, and the work history behind it. Product engineer in Helsinki, currently at Gosta Labs, previously at Rentle." path="/about">
   <section class="section intro">
     <div class="wrap two">
       <div>
@@ -12,14 +12,15 @@ import { site } from "../data/site";
         <h1 class="h">Hi, I'm Axel. I like owning the whole problem.</h1>
         <div class="prose big">
           <p>I am a product engineer, which in practice means I do the talking-to-users part, the deciding-what-to-build part, the building part and the running-it-in-production part, and I get itchy when I am only allowed one of them.</p>
-          <p>Eight-plus years of software and data engineering, all of it in startups. I have been the only engineer, the data person, the frontend person and the "why is the deploy broken" person, sometimes in the same afternoon. That range is the point: it lets me carry a product from schema to interface without waiting on a handoff.</p>
-          <p>I am a former competitive athlete <Todo note="Sport and level: the profile README says ex-athlete; the 2017 site named top-league floorball. Confirm wording.">confirm sport</Todo>, and it shows. I like teams, I like a plan, and I like being told the score. The hockey-analytics side projects are where the two halves overlap: I would rather measure the game than argue about it.</p>
+          <p>Eight-plus years of software and data engineering, all of it in early-stage companies. I have been the only engineer, the data person, the frontend person and the "why is the deploy broken" person, sometimes in the same afternoon. That range is the point: it lets me carry a product from schema to interface without waiting on a handoff. Business first, data second, code in service of both.</p>
+          <p>Before software I played floorball at the top level in Finland, with a season in Sweden along the way, and it shows. I like teams, I like a plan, and I like being told the score. The hockey-analytics side projects are where the two halves overlap: I would rather measure the game than argue about it.</p>
         </div>
       </div>
       <aside class="facts">
         <dl>
-          <div><dt>Now</dt><dd>Software Engineer at <a href={site.employer.url} rel="noopener">{site.employer.name}</a></dd></div>
-          <div><dt>Based in</dt><dd>{site.location} <Todo note="Location: confirm 'Finland' or give a city">confirm</Todo></dd></div>
+          <div><dt>Now</dt><dd>Product at <a href={site.employer.url} rel="noopener">{site.employer.name}</a></dd></div>
+          <div><dt>Before</dt><dd>{site.previous.name}</dd></div>
+          <div><dt>Based in</dt><dd>{site.location}</dd></div>
           <div><dt>Stack I reach for</dt><dd>TypeScript, Python, SQL, Next.js, Postgres, whatever the problem actually needs</dd></div>
           <div><dt>Off hours</dt><dd>RinkView, Banger Board, Budgy, and watching a lot of hockey</dd></div>
           <div><dt>Say hi</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
@@ -38,29 +39,43 @@ import { site } from "../data/site";
         <li data-reveal>
           <div class="when mono">Now <Todo note="Gosta Labs start date">start date pending</Todo></div>
           <div>
-            <h3>Software Engineer <span>· {site.employer.name}</span></h3>
-            <p>B2B med-tech startup. I build the software and data solutions behind the product, turning product data into insights users would not otherwise find.</p>
+            <h3>Product <span>· {site.employer.name}</span></h3>
+            <p>Helsinki healthtech startup building an AI operating system for oncology teams, in daily use by clinicians in Finland, Switzerland, the Baltics and Australia. I joined as a software engineer building the product and its data side, and now work across product. <Todo note="Gosta Labs: confirm titles over time (Software Engineer → Product) and the one-line description of what you own there">titles and scope pending</Todo></p>
           </div>
         </li>
         <li data-reveal style="--i:1">
-          <div class="when mono"><Todo note="Earlier roles: add employer, title and dates from the CV">earlier roles pending</Todo></div>
+          <div class="when mono"><Todo note="Rentle: add title(s) and dates; the LinkedIn post says 'on and off since' a year I could not read">dates pending</Todo></div>
           <div>
-            <h3>Earlier roles</h3>
-            <p>Eight-plus years of software and data engineering across startups. Employers, titles and dates to be filled in from the CV.</p>
+            <h3>Engineering <span>· {site.previous.name}</span></h3>
+            <p>Circular-commerce platform for rental businesses. Full-stack work across the product, and owner of the data platform that fed a product-led growth model. <Todo note="Rentle: confirm role wording; 'owner of the data platform' and 'core reason for the success of the PLG model' come from a public LinkedIn recommendation">confirm wording</Todo></p>
           </div>
         </li>
         <li data-reveal style="--i:2">
-          <div class="when mono">Education</div>
+          <div class="when mono"><Todo note="Any roles between 2016 and Rentle: add from the CV, or delete this row">other roles pending</Todo></div>
+          <div>
+            <h3>Earlier</h3>
+            <p>Eight-plus years in early-stage companies in total. Anything before Rentle goes here.</p>
+          </div>
+        </li>
+        <li data-reveal style="--i:3">
+          <div class="when mono">2016 →</div>
           <div>
             <h3>Aalto University <span>· Information Networks</span></h3>
             <p>A programme that mixes software, data and business, which turned out to be a fair description of the job. <Todo note="Aalto degree level and graduation year">degree and year pending</Todo></p>
           </div>
         </li>
-        <li data-reveal style="--i:3">
-          <div class="when mono">2016</div>
+        <li data-reveal style="--i:4">
+          <div class="when mono">Summer 2016</div>
           <div>
             <h3>BrainStation, Toronto <span>· Web Development Immersive</span></h3>
             <p>A summer of full-time web development. This is where the coding started, and it never really stopped.</p>
+          </div>
+        </li>
+        <li data-reveal style="--i:5">
+          <div class="when mono">2011 – 2017</div>
+          <div>
+            <h3>Floorball, competitively</h3>
+            <p>Top-league floorball in Finland with Steelers in Hämeenlinna, a season in Sweden with Järfälla before that, and a stint of military service in between. Twice-a-day training through high school taught me most of what I know about showing up.</p>
           </div>
         </li>
       </ol>

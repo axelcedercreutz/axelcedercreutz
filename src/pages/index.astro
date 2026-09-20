@@ -38,7 +38,7 @@ const jsonLd = {
   <section class="hero grid-bg">
     <div class="wrap hero-grid">
       <div>
-      <p class="eyebrow" data-reveal><b>{site.name}</b> · {site.role} · {site.location}</p>
+      <p class="eyebrow" data-reveal><b>{site.name}</b> · {site.role} · Helsinki</p>
       <h1 aria-label={`${headline} Boring parts included.`}>
         <span aria-hidden="true">
           {words.map((w, i) => (<><span class="hero-word" style={`--w:${i}`}>{w}</span>{" "}</>))}
@@ -47,7 +47,7 @@ const jsonLd = {
         </span>
       </h1>
       <p class="lede" data-reveal style="--i:2">
-        Interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in startups, currently a software engineer at{" "}
+        Interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in early-stage companies, first at {site.previous.name} and now in product at{" "}
         <a href={site.employer.url} rel="noopener">{site.employer.name}</a>, {site.employer.blurb}. After hours I build tools for hockey people and a budgeting app for households, and I write about what I learn doing it.
       </p>
       <div class="cta" data-reveal style="--i:3">

@@ -21,9 +21,9 @@ stats:
   - value: "54"
     label: "database migrations"
   - value: "3"
-    label: "roles enforced in row-level security"
-  - value: "0"
-    label: "plaintext personal fields at rest"
+    label: "member roles enforced in the database"
+  - value: "1"
+    label: "ingestion path for bank, CSV and manual rows"
 evidence:
   - claim: "1,127 Vitest cases across 120 files pass on the current commit"
     source: "vitest"
