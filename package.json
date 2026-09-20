@@ -1,0 +1,16 @@
+{
+  "name": "axelcedercreutz.fi",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Personal site of Axel Cedercreutz, product engineer. Static HTML and CSS, no build step, no runtime dependencies.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "test": "node --test \"tests/**/*.test.mjs\"",
+    "check:release": "node scripts/check-release.mjs",
+    "check:links": "node scripts/check-links.mjs",
+    "screenshots": "node scripts/screenshots.mjs",
+    "og": "node scripts/og.mjs"
+  }
+}
