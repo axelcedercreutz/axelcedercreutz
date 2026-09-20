@@ -1,0 +1,9 @@
+---
+/**
+ * A fact that still needs confirmation. Renders a visible marker in every build so nothing
+ * unverified can slip through unnoticed; `npm run check:release` fails while any exist.
+ */
+interface Props { note: string }
+const { note } = Astro.props;
+---
+<span data-todo={note}><slot /></span>

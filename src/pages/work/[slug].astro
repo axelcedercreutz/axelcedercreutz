@@ -1,0 +1,145 @@
+---
+import { getCollection, render } from "astro:content";
+import { Image } from "astro:assets";
+import Base from "../../layouts/Base.astro";
+import Todo from "../../components/Todo.astro";
+
+export async function getStaticPaths() {
+  const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+  return work.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, prev: work[i - 1] ?? null, next: work[i + 1] ?? null, index: i },
+  }));
+}
+
+const { entry, prev, next, index } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const num = String(index + 1).padStart(2, "0");
+---
+
+<Base title={d.title} description={d.summary} path={`/work/${entry.id}`} ogType="article">
+  <article class:list={["case", `accent-${d.accent}`]}>
+    <header class="case-hero">
+      <div class="wrap">
+        <p class="eyebrow"><a href="/work">Work</a> / case study {num}</p>
+        <div class="title-row">
+          <span class="numeral" aria-hidden="true">{num}</span>
+          <div>
+            <h1>{d.title}</h1>
+            <p class="tagline">{d.tagline}</p>
+          </div>
+        </div>
+
+        <div class="meta">
+          <dl>
+            <div><dt>Role</dt><dd>{d.role}</dd></div>
+            <div><dt>Year</dt><dd>{d.year}</dd></div>
+            <div><dt>Status</dt><dd>{d.status}</dd></div>
+          </dl>
+          <div class="actions">
+            {d.links.map((l) => (
+              <a class="btn" href={l.href} rel="noopener">{l.label} <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3h7v7M13 3 5 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+            ))}
+            {d.pending.map((note) => <Todo note={note}>{note.split(":")[0]}: link pending</Todo>)}
+          </div>
+        </div>
+
+        {d.stats.length > 0 && (
+          <ul class="stats" aria-label="Key numbers">
+            {d.stats.map((s, i) => (
+              <li data-reveal style={`--i:${i}`}><b data-count={s.value}>{s.value}</b><span>{s.label}</span></li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </header>
+
+    <div class="wrap">
+      <figure class="cover" data-reveal>
+        <Image src={d.cover} alt={d.coverAlt} width={1400} widths={[720, 1080, 1400]} sizes="(min-width: 1180px) 1100px, 100vw" format="webp" quality={80} loading="eager" />
+      </figure>
+
+      <div class="body">
+        <div class="prose">
+          <Content />
+        </div>
+
+        <aside class="side">
+          <h2 class="eyebrow">Stack</h2>
+          <ul class="tags">{d.stack.map((s) => <li class="tag">{s}</li>)}</ul>
+
+          {d.evidence.length > 0 && (
+            <>
+              <h2 class="eyebrow">Receipts</h2>
+              <ul class="receipts">
+                {d.evidence.map((e) => (<li><span>{e.claim}</span><span class="src mono">{e.source}</span></li>))}
+              </ul>
+            </>
+          )}
+        </aside>
+      </div>
+
+      {d.gallery.length > 0 && (
+        <section class="gallery" aria-label="Screens">
+          {d.gallery.map((g, i) => (
+            <figure data-reveal style={`--i:${i}`}>
+              <Image src={g.src} alt={g.alt} width={1100} widths={[600, 1100]} sizes="(min-width: 900px) 50vw, 100vw" format="webp" quality={78} loading="lazy" />
+              <figcaption>{g.caption}</figcaption>
+            </figure>
+          ))}
+        </section>
+      )}
+
+      <nav class="pager" aria-label="Other case studies">
+        {prev ? <a href={`/work/${prev.id}`}><span class="eyebrow">Previous</span><span class="t">← {prev.data.title}</span></a> : <span />}
+        {next ? <a class="right" href={`/work/${next.id}`}><span class="eyebrow">Next</span><span class="t">{next.data.title} →</span></a> : <a class="right" href="/work"><span class="eyebrow">Back</span><span class="t">All work →</span></a>}
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .case { --a: var(--ember); --a-ink: var(--ember-ink); --a-soft: var(--ember-soft); }
+  .accent-ice { --a: var(--ice); --a-ink: var(--ice-ink); --a-soft: var(--ice-soft); }
+  .accent-moss { --a: var(--moss); --a-ink: var(--moss); --a-soft: var(--moss-soft); }
+  .case-hero { padding-block: clamp(40px, 6vw, 80px) clamp(28px, 4vw, 44px); background: linear-gradient(180deg, var(--a-soft), transparent 70%); }
+  .case-hero .eyebrow a { text-decoration: none; color: var(--ink-3); }
+  .case-hero .eyebrow a:hover { color: var(--ink); }
+  .title-row { display: grid; gap: 8px 22px; align-items: end; margin-top: 16px; }
+  @media (min-width: 720px) { .title-row { grid-template-columns: auto 1fr; } }
+  .title-row .numeral { font-size: clamp(4rem, 12vw, 8rem); -webkit-text-stroke-color: var(--a); }
+  .title-row h1 { font-size: clamp(2.4rem, 6vw, 4.6rem); }
+  .tagline { font-size: clamp(1.15rem, 1.8vw, 1.45rem); color: var(--ink-2); max-width: 44ch; margin: 12px 0 0; line-height: 1.35; }
+  .meta { display: grid; gap: 20px; margin-top: 30px; padding-top: 22px; border-top: 1px solid var(--line); }
+  @media (min-width: 900px) { .meta { grid-template-columns: 1fr auto; align-items: start; } }
+  .meta dl { display: flex; flex-wrap: wrap; gap: 14px 36px; margin: 0; }
+  .meta dt { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+  .meta dd { margin: 0; font-weight: 600; max-width: 34ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .stats { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 28px; }
+  @media (min-width: 720px) { .stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  .stats li { display: grid; gap: 4px; padding: 16px 18px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+  .stats b { font-size: clamp(1.6rem, 3vw, 2.2rem); letter-spacing: -0.03em; font-variant-numeric: tabular-nums; color: var(--a-ink); line-height: 1; }
+  .stats span { font-size: 0.86rem; color: var(--ink-2); }
+  .cover { margin: 8px 0 0; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #fff; box-shadow: var(--shadow); }
+  .cover img { width: 100%; }
+  .body { display: grid; gap: 40px; padding-block: clamp(40px, 6vw, 72px) 0; }
+  @media (min-width: 960px) { .body { grid-template-columns: minmax(0, 1fr) 300px; gap: 64px; } }
+  .side { display: grid; gap: 14px; align-content: start; position: sticky; top: 88px; }
+  .side .eyebrow { margin-top: 10px; }
+  .side .eyebrow:first-child { margin-top: 0; }
+  .receipts { list-style: none; border-top: 1px solid var(--line); }
+  .receipts li { display: grid; gap: 4px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 0.92rem; color: var(--ink-2); }
+  .receipts .src { font-size: 0.68rem; color: var(--a-ink); }
+  .gallery { display: grid; gap: 18px; margin-top: clamp(40px, 6vw, 72px); }
+  @media (min-width: 900px) { .gallery { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .gallery figure { margin: 0; }
+  .gallery img { border: 1px solid var(--line); border-radius: var(--radius-sm); background: #fff; }
+  .gallery figcaption { margin-top: 8px; font-size: 0.86rem; color: var(--ink-3); }
+  .pager { display: flex; justify-content: space-between; gap: 16px; margin-block: clamp(40px, 6vw, 72px) clamp(40px, 6vw, 80px); padding-top: 22px; border-top: 1px solid var(--line); }
+  .pager a { display: grid; gap: 4px; text-decoration: none; }
+  .pager .t { font-weight: 700; font-size: 1.05rem; }
+  .pager a:hover .t { color: var(--a-ink); }
+  .pager .right { text-align: right; }
+</style>

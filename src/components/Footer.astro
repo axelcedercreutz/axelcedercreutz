@@ -1,0 +1,42 @@
+---
+import { site } from "../data/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <p class="eyebrow">Get in touch</p>
+        <h2 class="big">Got a product that needs building? <span class="ember">Let's talk.</span></h2>
+        <p class="muted">Hiring a product engineer, want a second pair of eyes on a data problem, or just want to argue about expected goals. Email works best.</p>
+        <div class="links">
+          <a class="btn" href={`mailto:${site.email}`}>{site.email}</a>
+          <a class="btn ghost" href={site.github} rel="me noopener">GitHub</a>
+          <a class="btn ghost" href={site.linkedin} rel="me noopener">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© {year} {site.name} · {site.location}</span>
+      <span class="right">
+        <a href="/rss.xml">RSS</a>
+        <a href={site.repo} rel="noopener">Source</a>
+        <span>No cookies, no trackers, no third-party requests.</span>
+      </span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer { border-top: 1px solid var(--line); background: var(--bg-2); }
+  .top { padding-block: clamp(56px, 8vw, 104px) clamp(36px, 5vw, 56px); }
+  .big { font-size: clamp(2rem, 5vw, 3.6rem); max-width: 16ch; margin: 12px 0 18px; }
+  .ember { color: var(--ember-ink); }
+  .top p.muted { max-width: 52ch; font-size: 1.05rem; }
+  .links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; padding-block: 18px 34px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 0.74rem; color: var(--ink-3); letter-spacing: 0.02em; }
+  .right { display: flex; flex-wrap: wrap; gap: 16px; }
+  .bottom a { color: var(--ink-2); text-decoration: none; }
+  .bottom a:hover { color: var(--ink); text-decoration: underline; }
+</style>

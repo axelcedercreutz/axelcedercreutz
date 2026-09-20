@@ -1,16 +1,25 @@
 {
   "name": "axelcedercreutz.fi",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "Personal site of Axel Cedercreutz, product engineer. Static HTML and CSS, no build step, no runtime dependencies.",
+  "description": "Personal site and blog of Axel Cedercreutz, product engineer. Astro, static output.",
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
-    "dev": "node scripts/serve.mjs",
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
     "test": "node --test \"tests/**/*.test.mjs\"",
     "check:release": "node scripts/check-release.mjs",
     "check:links": "node scripts/check-links.mjs",
     "screenshots": "node scripts/screenshots.mjs",
     "og": "node scripts/og.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.3"
   }
 }

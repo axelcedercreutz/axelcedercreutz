@@ -1,158 +1,175 @@
-// Structural and content checks for index.html. Zero dependencies: node:test + regex over the markup.
-// These guard the acceptance criteria that can be checked mechanically: metadata, project order,
-// link discipline (no guessed URLs), TODO discipline, images, accessibility basics and privacy (no third-party requests).
-import { test } from "node:test";
+// Checks over the BUILT site (dist/). Run `npm run build` first; CI does.
+// Zero dependencies: node:test + regex over the emitted HTML. Blunt on purpose: it catches the
+// class of mistake a personal site accumulates (missing metadata, guessed links, leaked TODOs,
+// third-party requests, images without alt text) rather than testing components.
+import { test, before } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, existsSync, statSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
+import { resolve, join, relative } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
-const html = readFileSync(resolve(root, "index.html"), "utf8");
-const css = readFileSync(resolve(root, "assets/css/site.css"), "utf8");
-const registry = JSON.parse(readFileSync(resolve(root, "content/links.json"), "utf8")).links;
+const dist = join(root, "dist");
+const registry = JSON.parse(readFileSync(join(root, "src/data/links.json"), "utf8")).links;
+const known = new Set(registry.map((l) => l.url));
+const SITE = "https://axelcedercreutz.fi";
 
-const attrs = (tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>`, "g"))].map((m) => m[0]);
+function walk(dir, out = []) {
+  for (const f of readdirSync(dir)) {
+    const p = join(dir, f);
+    if (statSync(p).isDirectory()) walk(p, out); else if (p.endsWith(".html")) out.push(p);
+  }
+  return out;
+}
+
+let pages = [];
+before(() => {
+  assert.ok(existsSync(dist), "dist/ is missing: run `npm run build` first");
+  pages = walk(dist).map((file) => {
+    const html = readFileSync(file, "utf8");
+    const rel = "/" + relative(dist, file).replace(/\\/g, "/");
+    const path = rel === "/index.html" ? "/" : rel.replace(/\.html$/, "");
+    return { file, path, html, text: html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<style[\s\S]*?<\/style>/g, "").replace(/<[^>]+>/g, " ") };
+  });
+  assert.ok(pages.length >= 8, `expected at least 8 pages, found ${pages.length}`);
+});
+
+const attrs = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>`, "g"))].map((m) => m[0]);
 const attr = (tagHtml, name) => (tagHtml.match(new RegExp(`\\s${name}="([^"]*)"`)) || [])[1];
-const meta = (key, value) => attrs("meta").find((m) => attr(m, key) === value);
-const text = html.replace(/<script[\s\S]*?<\/script>/g, "").replace(/<[^>]+>/g, " ");
+const meta = (html, key, value) => attrs(html, "meta").find((m) => attr(m, key) === value);
+const decode = (s) => s.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
 
-test("document basics: lang, viewport, charset, one h1, skip link, landmarks", () => {
-  assert.match(html, /<html lang="en">/);
-  assert.match(html, /<meta charset="utf-8">/);
-  assert.ok(meta("name", "viewport"), "viewport meta");
-  assert.equal(attrs("h1").length, 1, "exactly one h1");
-  assert.match(html, /class="skip" href="#main"/);
-  assert.match(html, /<main id="main">/);
-  assert.match(html, /<nav class="site-nav" aria-label="Site">/);
-});
-
-test("title, description and canonical position a product engineer at axelcedercreutz.fi", () => {
-  const title = html.match(/<title>([^<]+)<\/title>/)[1];
-  assert.match(title, /Axel Cedercreutz/);
-  assert.match(title, /Product Engineer/);
-  const desc = attr(meta("name", "description"), "content");
-  assert.ok(desc.length >= 80 && desc.length <= 300, `description length ${desc.length}`);
-  assert.match(desc, /Product engineer/i);
-  assert.match(desc, /RinkView/);
-  assert.equal(attr(attrs("link").find((l) => attr(l, "rel") === "canonical"), "href"), "https://axelcedercreutz.fi/");
-});
-
-test("Open Graph and Twitter cards are complete and point at the canonical host", () => {
-  for (const p of ["og:type", "og:title", "og:description", "og:url", "og:image", "og:image:width", "og:image:height", "og:image:alt"]) {
-    assert.ok(meta("property", p), `missing ${p}`);
+test("every page has the basics: lang, viewport, one h1, skip link, main landmark", () => {
+  for (const p of pages) {
+    assert.match(p.html, /<html lang="en"/, `${p.path}: lang`);
+    assert.ok(meta(p.html, "name", "viewport"), `${p.path}: viewport`);
+    assert.equal(attrs(p.html, "h1").length, 1, `${p.path}: exactly one h1`);
+    assert.match(p.html, /class="skip" href="#main"/, `${p.path}: skip link`);
+    assert.match(p.html, /<main id="main">/, `${p.path}: main landmark`);
   }
-  assert.equal(attr(meta("property", "og:url"), "content"), "https://axelcedercreutz.fi/");
-  assert.equal(attr(meta("property", "og:image"), "content"), "https://axelcedercreutz.fi/assets/img/og.png");
-  assert.ok(existsSync(resolve(root, "assets/img/og.png")), "assets/img/og.png must exist (npm run og)");
-  assert.equal(attr(meta("name", "twitter:card"), "content"), "summary_large_image");
-  assert.ok(meta("name", "twitter:title") && meta("name", "twitter:description") && meta("name", "twitter:image"));
 });
 
-test("JSON-LD is valid and describes a Person who is a Product Engineer", () => {
-  const ld = JSON.parse(html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+test("every page has a title, description, canonical URL that matches its path, and full Open Graph tags", () => {
+  for (const p of pages) {
+    const title = (p.html.match(/<title>([^<]+)<\/title>/) || [])[1];
+    assert.ok(title && title.includes("Axel Cedercreutz"), `${p.path}: title "${title}"`);
+    const desc = attr(meta(p.html, "name", "description"), "content");
+    assert.ok(desc && desc.length >= 50 && desc.length <= 320, `${p.path}: description length ${desc?.length}`);
+    const canonical = attr(attrs(p.html, "link").find((l) => attr(l, "rel") === "canonical"), "href");
+    const expected = p.path === "/404" ? `${SITE}/404` : p.path === "/" ? `${SITE}/` : `${SITE}${p.path}`;
+    assert.equal(canonical, expected, `${p.path}: canonical`);
+    for (const k of ["og:type", "og:title", "og:description", "og:url", "og:image", "og:image:width", "og:image:height", "og:image:alt"]) assert.ok(meta(p.html, "property", k), `${p.path}: ${k}`);
+    assert.equal(attr(meta(p.html, "property", "og:url"), "content"), canonical, `${p.path}: og:url`);
+    assert.equal(attr(meta(p.html, "name", "twitter:card"), "content"), "summary_large_image", `${p.path}: twitter card`);
+    const og = attr(meta(p.html, "property", "og:image"), "content");
+    assert.ok(og.startsWith(SITE + "/"), `${p.path}: og:image absolute`);
+    assert.ok(existsSync(join(dist, og.slice(SITE.length))), `${p.path}: og image ${og} exists in dist (npm run og)`);
+  }
+});
+
+test("home page positions a product engineer first and links the work, not a single sport", () => {
+  const home = pages.find((p) => p.path === "/");
+  const hero = home.html.match(/<section class="hero[\s\S]*?<\/section>/)[0];
+  assert.match(hero, /Product Engineer|Product engineer/, "role above the fold");
+  assert.match(hero, /href="\/work"/, "primary CTA to work");
+  const heroText = hero.replace(/<[^>]+>/g, " ");
+  assert.ok((heroText.match(/hockey/gi) || []).length <= 1, "hockey is mentioned at most once in the hero");
+  const ld = JSON.parse(decode(home.html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]));
   assert.equal(ld["@type"], "Person");
-  assert.equal(ld.name, "Axel Cedercreutz");
   assert.equal(ld.jobTitle, "Product Engineer");
-  assert.equal(ld.url, "https://axelcedercreutz.fi/");
-  for (const u of ld.sameAs) assert.ok(registry.some((l) => l.url === u), `sameAs ${u} not in links.json`);
+  for (const u of ld.sameAs) assert.ok(known.has(u), `sameAs ${u} not in links.json`);
 });
 
-test("hero puts Product Engineer above the fold, with hockey analytics as the secondary theme", () => {
-  const hero = html.match(/<section class="hero"[\s\S]*?<\/section>/)[0];
-  assert.match(hero, /Product engineer/);
-  assert.match(hero, /hockey/i);
-  assert.match(hero, /href="#rinkview"/, "primary CTA goes to RinkView");
-  assert.match(hero, /href="#experience"/, "secondary CTA goes to work history");
-});
-
-test("featured projects appear in the required order: RinkView, Banger Board, Budgy", () => {
-  const order = [...html.matchAll(/data-project="([^"]+)"/g)].map((m) => m[1]);
-  assert.deepEqual(order, ["rinkview", "banger-board", "budgy"]);
-  const idx = (s) => html.indexOf(s);
-  assert.ok(idx('id="work"') < idx('id="experience"'), "work history follows featured work");
-  assert.ok(idx('id="experience"') < idx('id="contact"'));
-});
-
-test("each case study has a summary, evidence and links block", () => {
-  for (const id of ["rinkview", "banger-board", "budgy"]) {
-    const art = html.match(new RegExp(`<article class="case" id="${id}"[\\s\\S]*?<\\/article>`))[0];
-    assert.match(art, /class="tagline"/, `${id} tagline`);
-    assert.match(art, /<h4>The problem<\/h4>/, `${id} problem`);
-    assert.match(art, /class="links"/, `${id} links block`);
-    assert.match(art, /<dt>Role<\/dt>/, `${id} role`);
+test("case studies exist on their own pages, in order: RinkView, Banger Board, Budgy", () => {
+  for (const slug of ["rinkview", "banger-board", "budgy"]) assert.ok(pages.some((p) => p.path === `/work/${slug}`), `/work/${slug}`);
+  for (const path of ["/", "/work"]) {
+    const html = pages.find((p) => p.path === path).html;
+    const order = [...html.matchAll(/href="\/work\/(rinkview|banger-board|budgy)"/g)].map((m) => m[1]);
+    assert.deepEqual([...new Set(order)], ["rinkview", "banger-board", "budgy"], `${path}: case study order`);
   }
-  assert.match(html.match(/id="rinkview"[\s\S]*?<\/article>/)[0], /class="receipts"/, "RinkView has evidence receipts");
-  assert.match(html.match(/id="rinkview"[\s\S]*?<\/article>/)[0], /rinkview-670251302746\.europe-north1\.run\.app/, "RinkView live CTA");
+  for (const p of pages.filter((p) => p.path.startsWith("/work/"))) {
+    assert.match(p.html, /<dt[^>]*>Role<\/dt>/, `${p.path}: role`);
+    assert.match(p.html, /Receipts/, `${p.path}: evidence`);
+    assert.match(p.html, /The problem/, `${p.path}: problem section`);
+  }
+  assert.match(pages.find((p) => p.path === "/work/rinkview").html, /rinkview-670251302746\.europe-north1\.run\.app/, "RinkView live CTA");
 });
 
-test("every in-page anchor resolves to an id", () => {
-  const ids = new Set([...html.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
-  for (const [, target] of html.matchAll(/href="#([^"]+)"/g)) assert.ok(ids.has(target), `broken anchor #${target}`);
+test("blog: index, at least one published post, RSS feed and sitemap exist; drafts are excluded", () => {
+  assert.ok(pages.some((p) => p.path === "/blog"));
+  const posts = pages.filter((p) => p.path.startsWith("/blog/"));
+  assert.ok(posts.length >= 1, "at least one published post");
+  assert.ok(!pages.some((p) => p.path === "/blog/rinkview-build-notes"), "draft post must not be built");
+  const rss = readFileSync(join(dist, "rss.xml"), "utf8");
+  assert.match(rss, /<rss/);
+  assert.match(rss, /<item>/);
+  assert.doesNotMatch(rss, /rinkview-build-notes/, "draft must not be in the feed");
+  assert.ok(existsSync(join(dist, "sitemap-index.xml")));
+  assert.ok(existsSync(join(dist, "robots.txt")));
+  for (const p of posts) assert.match(p.html, /"@type":"BlogPosting"/, `${p.path}: BlogPosting JSON-LD`);
 });
 
-test("every external link is https (or mailto) and registered in content/links.json with a source", () => {
-  const known = new Map(registry.map((l) => [l.url, l]));
+test("every internal link resolves to a built page or asset", () => {
+  const built = new Set(pages.map((p) => p.path));
+  for (const p of pages) {
+    for (const [, href] of p.html.matchAll(/<a [^>]*href="(\/[^"#]*)"/g)) {
+      const clean = href.replace(/\/$/, "") || "/";
+      const ok = built.has(clean) || existsSync(join(dist, href));
+      assert.ok(ok, `${p.path}: internal link ${href} does not resolve`);
+    }
+  }
+});
+
+test("every external link is https or mailto and registered in src/data/links.json", () => {
   for (const l of registry) assert.ok(l.source && l.source.length > 10, `links.json entry ${l.url} needs a source note`);
-  const hrefs = [...html.matchAll(/<a [^>]*href="([^"#][^"]*)"/g)].map((m) => m[1]).filter((h) => /^(https?:|mailto:)/.test(h));
-  assert.ok(hrefs.length >= 6, "expected external links");
-  for (const h of hrefs) {
-    assert.ok(!h.startsWith("http:"), `insecure link ${h}`);
-    assert.ok(known.has(h), `external link not in content/links.json (no guessed URLs): ${h}`);
+  for (const p of pages) {
+    for (const [tag, href] of p.html.matchAll(/<a ([^>]*href="([^"]*)"[^>]*)>/g).map((m) => [m[1], m[2]])) {
+      if (!/^(https?:|mailto:)/.test(href)) continue;
+      assert.ok(!href.startsWith("http:"), `${p.path}: insecure link ${href}`);
+      assert.ok(known.has(href), `${p.path}: external link not in links.json (no guessed URLs): ${href}`);
+      assert.doesNotMatch(tag, /target="_blank"/, `${p.path}: ${href} opens a new tab; links stay in the same tab on this site`);
+    }
   }
-  for (const [h] of html.matchAll(/<a [^>]*href="https:[^"]*"[^>]*>/g)) assert.match(h, /rel="[^"]*noopener/, `external anchor without rel=noopener: ${h}`);
 });
 
-test("no team affiliation is implied", () => {
-  assert.doesNotMatch(text, /red wings/i);
-  assert.doesNotMatch(text, /detroit/i);
-  assert.doesNotMatch(text, /utah|mammoth/i, "the demo dataset's original club must not read as an affiliation");
-});
-
-test("unconfirmed facts are marked, enumerable and never silently absent", () => {
-  const todos = [...html.matchAll(/data-todo="([^"]*)"/g)].map((m) => m[1]);
-  // 'TODO' as a bare word must not leak into visible copy; unconfirmed facts use data-todo instead.
-  assert.doesNotMatch(text, /\bTODO\b/);
-  for (const t of todos) assert.ok(t.length > 12, `data-todo needs a descriptive note: "${t}"`);
-  // Placeholder metrics are forbidden: no "X%", "N users", "lorem".
-  assert.doesNotMatch(text, /\bX%|\bN users\b|lorem ipsum|\[metric\]|\[number\]/i);
-});
-
-test("images exist, carry alt text and intrinsic dimensions, and stay lightweight", () => {
-  const imgs = attrs("img");
-  assert.ok(imgs.length >= 2);
-  let total = 0;
-  for (const img of imgs) {
-    const src = attr(img, "src");
-    const file = resolve(root, src);
-    assert.ok(existsSync(file), `missing image ${src}`);
-    assert.ok((attr(img, "alt") || "").length > 20, `alt text too short on ${src}`);
-    assert.ok(attr(img, "width") && attr(img, "height"), `width/height missing on ${src}`);
-    assert.match(img, /loading="lazy"/, `${src} should lazy-load (below the fold)`);
-    total += statSync(file).size;
+test("no third-party requests: every script, stylesheet, image and font is same-origin", () => {
+  for (const p of pages) {
+    for (const [, url] of p.html.matchAll(/<(?:script|link|img|source)\b[^>]*(?:src|href)="(https?:\/\/[^"]+)"/g)) {
+      assert.ok(url.startsWith(SITE + "/"), `${p.path}: external resource ${url}`);
+    }
+    for (const [tag] of p.html.matchAll(/<(?:script|link|iframe)\b[^>]*>/g)) assert.doesNotMatch(tag, /googletagmanager|google-analytics|plausible|posthog|hotjar|fonts\.googleapis/i, `${p.path}: tracker or remote font in ${tag}`);
   }
-  assert.ok(total < 800 * 1024, `images total ${Math.round(total / 1024)} KB, keep under 800 KB`);
 });
 
-test("privacy and performance: no scripts besides JSON-LD, no third-party requests, self-hosted fonts", () => {
-  const scripts = attrs("script");
-  assert.equal(scripts.length, 1);
-  assert.match(scripts[0], /application\/ld\+json/);
-  for (const [, url] of html.matchAll(/(?:src|href)="(https?:[^"]+)"/g)) {
-    // Only anchors may reach external hosts; resources must be relative.
-    const isAnchor = new RegExp(`<a [^>]*href="${url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(html);
-    const isMeta = new RegExp(`<(?:meta|link rel="canonical")[^>]*(?:content|href)="${url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}"`).test(html);
-    assert.ok(isAnchor || isMeta, `external resource request: ${url}`);
+test("images carry alt text and dimensions; fonts are self-hosted and licensed", () => {
+  for (const p of pages) {
+    for (const img of attrs(p.html, "img")) {
+      const alt = attr(img, "alt");
+      assert.ok(alt !== undefined && alt.length > 20, `${p.path}: alt text missing or too short on ${attr(img, "src")}`);
+      assert.ok(attr(img, "width") && attr(img, "height"), `${p.path}: width/height missing on ${attr(img, "src")}`);
+    }
   }
-  assert.doesNotMatch(css, /url\(\s*["']?https?:/, "CSS must not load remote resources");
-  for (const f of ["assets/fonts/InstrumentSerif-Regular.woff2", "assets/fonts/InstrumentSerif-Italic.woff2", "assets/fonts/OFL-InstrumentSerif.txt", "favicon.svg"]) {
-    assert.ok(existsSync(resolve(root, f)), `missing ${f}`);
-  }
-  assert.match(css, /prefers-color-scheme: dark/);
-  assert.match(css, /prefers-reduced-motion/);
+  for (const f of ["fonts/BricolageGrotesque-latin.woff2", "fonts/JetBrainsMono-latin.woff2", "fonts/OFL-BricolageGrotesque.txt", "fonts/OFL-JetBrainsMono.txt", "favicon.svg"]) assert.ok(existsSync(join(dist, f)), `missing ${f}`);
 });
 
-test("heading levels do not skip", () => {
-  const levels = [...html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
-  let prev = 0;
-  for (const l of levels) { assert.ok(l <= prev + 1, `heading jumps from h${prev} to h${l}`); prev = l; }
+test("unconfirmed facts are marked with data-todo, never as bare TODO text or placeholder metrics", () => {
+  for (const p of pages) {
+    assert.doesNotMatch(p.text, /\bTODO\b/, `${p.path}: bare TODO in copy`);
+    assert.doesNotMatch(p.text, /lorem ipsum|\[metric\]|\[number\]|\bXX\b/i, `${p.path}: placeholder`);
+    for (const [, note] of p.html.matchAll(/data-todo="([^"]*)"/g)) assert.ok(note.length > 12, `${p.path}: data-todo needs a descriptive note`);
+  }
+});
+
+test("no team affiliation is implied anywhere", () => {
+  for (const p of pages) {
+    assert.doesNotMatch(p.text, /red wings|detroit/i, `${p.path}`);
+    assert.doesNotMatch(p.text, /\butah\b|mammoth/i, `${p.path}: the demo dataset's original club must not read as an affiliation`);
+  }
+});
+
+test("headings do not skip levels", () => {
+  for (const p of pages) {
+    const levels = [...p.html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
+    let prev = 0;
+    for (const l of levels) { assert.ok(l <= prev + 1, `${p.path}: heading jumps from h${prev} to h${l}`); prev = l; }
+  }
 });

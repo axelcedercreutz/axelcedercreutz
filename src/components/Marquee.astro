@@ -1,0 +1,26 @@
+---
+interface Props { items: string[] }
+const { items } = Astro.props;
+// The track is duplicated so the loop is seamless; the copy is aria-hidden.
+---
+
+<div class="marquee" aria-label="Things I work with">
+  <div class="marquee-track">
+    {[0, 1].map((copy) => (
+      <ul aria-hidden={copy === 1 ? "true" : undefined}>
+        {items.map((t) => (<li><span class="dot" aria-hidden="true"></span>{t}</li>))}
+      </ul>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee { overflow: hidden; border-block: 1px solid var(--line); background: var(--ink); color: var(--bg); -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .marquee-track { display: flex; width: max-content; }
+  ul { display: flex; list-style: none; gap: 0; padding-block: 14px; }
+  li { display: inline-flex; align-items: center; gap: 14px; padding-inline: 14px 0; font-family: var(--mono); font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; }
+  .dot { width: 7px; height: 7px; border-radius: 999px; background: var(--ember); }
+  li:nth-child(3n) .dot { background: var(--ice); }
+  li:nth-child(5n) .dot { background: var(--lime); }
+  @media (prefers-reduced-motion: reduce) { .marquee { -webkit-mask-image: none; mask-image: none; } .marquee-track { flex-wrap: wrap; width: auto; } ul[aria-hidden] { display: none; } ul { flex-wrap: wrap; row-gap: 6px; } }
+</style>

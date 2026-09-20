@@ -1,51 +1,52 @@
 # Handoff: facts and links awaiting confirmation
 
-Everything on the page was written from the repositories and documents listed under "Verified from".
-The items below could not be verified from any source I could reach. Each is marked in `index.html`
-with a `data-todo` attribute (visible in review builds); `npm run check:release` fails until they are resolved.
+Everything on the site was written from the repositories and documents listed under "Verified from".
+The items below could not be verified from any reachable source. Each is a visible marker on the page
+(`<Todo>` in `.astro` files, `pending:` in case-study frontmatter); `npm run check:release` fails until they are resolved.
 
 ## Links to confirm or provide
 
-| # | Item | Where on the page | What I found |
+| # | Item | Where | What I found |
 |---|---|---|---|
-| 1 | RinkView source repository link | RinkView meta column | `github.com/axelcedercreutz/rinkview` is private. Make it public and add the link, or drop the line. |
-| 2 | Banger Board live URL | Banger Board meta column | The Vercel project deploys behind Vercel Authentication (README). If a public URL exists or is wanted, add it; otherwise keep "private to the league". |
-| 3 | Banger Board source repository link | Banger Board meta column | `github.com/axelcedercreutz/nhl-fantasy-draft-tool` is private. |
-| 4 | Budgy live product URL | Budgy meta column | `budgy.aced.fi` resolves to Vercel DNS, but no document in either Budgy repository names a public production URL, so it is not on the page. |
-| 5 | Budgy source repository link | Budgy meta column | `github.com/axelcedercreutz/budgy-v2` is private. |
-| 6 | LinkedIn URL `https://www.linkedin.com/in/axel-cedercreutz` | Header, contact, JSON-LD | Taken from the 2017 site. LinkedIn blocks automated checks, so please confirm it resolves to your profile. |
-| 7 | Contact email `axel.cedercreutz@gmail.com` | Contact section, JSON-LD | Commit author email on the RinkView repository and the 2017 site's contact address. Confirm this is the address you want public. |
+| 1 | RinkView source repository link | `/work/rinkview` | `axelcedercreutz/rinkview` is private. Make it public and add to `links`, or delete the `pending` line. |
+| 2 | Banger Board live URL | `/work/banger-board` | The Vercel deployment is behind Vercel Authentication (README). Add a public URL or keep it private. |
+| 3 | Banger Board source link | `/work/banger-board` | `axelcedercreutz/nhl-fantasy-draft-tool` is private. |
+| 4 | Budgy live product URL | `/work/budgy` | `budgy.aced.fi` resolves to Vercel DNS, but no document in either Budgy repository names a public URL. |
+| 5 | Budgy source link | `/work/budgy` | `axelcedercreutz/budgy-v2` is private. |
+| 6 | LinkedIn URL `linkedin.com/in/axel-cedercreutz` | header, footer, JSON-LD | From the 2017 site. LinkedIn blocks automated checks. |
+| 7 | Contact email `axel.cedercreutz@gmail.com` | footer, about, JSON-LD | Commit author email on RinkView and the 2017 site's contact address. Confirm it is the one you want public. |
 
 ## Facts to confirm
 
-| # | Claim on the page | Basis | Action |
+| # | Claim | Basis | Action |
 |---|---|---|---|
-| 8 | "Eight-plus years of software and data engineering in startups" | Profile README (last edited April 2025) | Update the number if it has changed. |
-| 9 | Gosta Labs start date | Not in any source | Fill in (timeline entry). |
-| 10 | Earlier employers, titles and dates | Not in any source | Fill in from the CV (timeline entry is a placeholder). |
-| 11 | Aalto University, Information Networks: degree level and graduation year | 2017 site says studies began autumn 2016 | Fill in. |
-| 12 | "Finland" as location | Domain, Aalto, Gosta Labs | Confirm, or change to a city. |
-| 13 | "Former competitive athlete" | Profile README ("ex-athlete"); 2017 site named top-league floorball | Confirm wording; add the sport if you want it named. |
-| 14 | "Built solo, running an AI-assisted workflow end to end" (RinkView) | `docs/BUILD_NOTES.md` in the RinkView repo, which is itself marked "draft, candidate must review"; every commit on all three repos is authored by you | Confirm you want this stated on the site. |
-| 15 | "In daily use" and "running in production" (Budgy) | Handover doc names a live Supabase project with real data and bank connections | Confirm. |
-| 16 | "Deployed on Vercel for one league" (Banger Board) | README: repo linked to the Vercel project, pushes to main deploy | Confirm. |
-| 17 | Interests list (growth and product analytics, environment and biotech, web development) | Profile README | Trim or update. |
+| 8 | "Eight-plus years" | Profile README (April 2025) | Update if it has moved on. |
+| 9 | Gosta Labs start date | Not in any source | Fill in on `/about`. |
+| 10 | Earlier employers, titles, dates | Not in any source | Fill in on `/about`; the placeholder row is marked. |
+| 11 | Aalto degree level and graduation year | 2017 site: studies began autumn 2016 | Fill in on `/about`. |
+| 12 | "Finland" as location | Domain, Aalto, Gosta Labs | Confirm or name a city. |
+| 13 | "Former competitive athlete" | README "ex-athlete"; 2017 site named top-league floorball | Confirm wording; name the sport if you want to. |
+| 14 | RinkView "How it was made" section (AI-assisted, directed passes) | `docs/BUILD_NOTES.md` in the RinkView repo, itself marked "candidate must review"; every commit on all three repos is authored by you | Read and confirm. |
+| 15 | Budgy "running in production" | Handover doc names a live Supabase project with real data and bank connections | Confirm. |
+| 16 | Banger Board "deployed on Vercel for one league" | README | Confirm. |
+| 17 | Budgy cover image | A composition rendered from Budgy's own design tokens with illustrative numbers (`scripts/budgy-cover.html`), captioned as such | Replace with a product screenshot when you have one. |
+| 18 | The draft post "What a week of directed building actually produced" | Assembled from RinkView's `docs/BUILD_NOTES.md`; `draft: true`, excluded from the build | Edit in your own words, then flip `draft` to publish, or delete it. |
 
 ## Verified from
 
-- `axelcedercreutz/rinkview` at `7550892` (README, `docs/BUILD_NOTES.md`, `docs/DEFENSE_NOTES.md`, `docs/CHAT.md`, `docs/xg_fit_report.md`, `data/PROVENANCE.md`, CI and deploy workflows). Test suites run in this pass: 319 pytest cases and 119 node:test cases, all passing.
-- `axelcedercreutz/nhl-fantasy-draft-tool` at `1f1f823` (README, HANDOVER.md, `lib/*.ts`, API routes). Vitest run in this pass: 22 passing. Production build succeeded; the draft-room screenshot on the page was captured from that build.
-- `axelcedercreutz/budgy-v2` at `303b2f5` (CLAUDE.md, DEPLOYMENT.md, `docs/design-direction.md`, `docs/architecture-review.md`, `docs/features/*.md`, `lib/crypto/`, CI workflow). Vitest run in this pass: 1,127 tests in 120 files passing. 54 migration files counted.
-- `axelcedercreutz/Budgy` (v1) docs: `docs/first-five-minutes.md`, `docs/handover-consolidation.md`, `docs/roadmap-2026h2.md`, `docs/architecture-review.md`.
+- `axelcedercreutz/rinkview` at `7550892`: README, `docs/BUILD_NOTES.md`, `docs/DEFENSE_NOTES.md`, `docs/CHAT.md`, `docs/xg_fit_report.md`, `data/PROVENANCE.md`, CI and deploy workflows. Suites run in this pass: 319 pytest cases collected and passing, 119 node:test cases passing.
+- `axelcedercreutz/nhl-fantasy-draft-tool` at `1f1f823`: README, HANDOVER.md, `lib/*.ts`, API routes. Vitest: 22 passing; `next build` clean. The three Banger Board screenshots were captured from that build.
+- `axelcedercreutz/budgy-v2` at `303b2f5`: CLAUDE.md, DEPLOYMENT.md, `docs/design-direction.md`, `docs/architecture-review.md`, `docs/features/*.md`, `lib/crypto/`, CI workflow. Vitest: 1,127 tests in 120 files passing. 54 migration files.
+- `axelcedercreutz/Budgy` (v1) docs: `first-five-minutes.md`, `handover-consolidation.md`, `roadmap-2026h2.md`, `architecture-review.md`.
 - Profile README in this repository (Gosta Labs, years of experience, interests, ex-athlete).
 - `axelcedercreutz/axelcedercreutz.github.io` (2017 site): education, BrainStation, LinkedIn URL, email.
 - Public repositories `darts-app` and `backend-posthog-demo`: READMEs.
-- RinkView screenshots: `docs/img/shotmap.png` from the RinkView repository, downscaled.
+- RinkView screenshots: `docs/img/*.png` from the RinkView repository.
 
 ## Deliberately out of scope
 
-- DNS for axelcedercreutz.fi, aced.fi redirects, and product subdomains such as rinkview.aced.fi.
-- Deploying this page anywhere. The current axelcedercreutz.fi host (a non-GitHub, non-Vercel IP) could not be inspected from the build environment, and its source is not in any reachable repository.
-- Making any of the private repositories public.
-- A CV download. Add one under `assets/` and link it from the hero when ready.
-- A photo. None was available; the page is designed to work without one.
+- DNS for axelcedercreutz.fi, aced.fi redirects, product subdomains such as rinkview.aced.fi.
+- Deploying the site. The current axelcedercreutz.fi host could not be inspected from the build environment and its source is not in any reachable repository.
+- Making private repositories public.
+- A CV download and a photo. Add the PDF under `public/` and link it from the hero when ready.
+- A real Budgy screenshot (needs a Supabase environment to render).
