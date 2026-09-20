@@ -23,6 +23,7 @@ import { site } from "../data/site";
           <div><dt>Based in</dt><dd>{site.location}</dd></div>
           <div><dt>Stack I reach for</dt><dd>TypeScript, Python, SQL, Next.js, Postgres, whatever the problem actually needs</dd></div>
           <div><dt>Off hours</dt><dd>RinkView, Banger Board, Budgy, and watching a lot of hockey</dd></div>
+          <div><dt>Elsewhere</dt><dd><a href={site.github} rel="me noopener">GitHub</a> · <a href={site.linkedin} rel="me noopener">LinkedIn</a></dd></div>
           <div><dt>Say hi</dt><dd><a href={`mailto:${site.email}`}>{site.email}</a></dd></div>
         </dl>
       </aside>
@@ -102,9 +103,24 @@ import { site } from "../data/site";
           <a href="https://github.com/axelcedercreutz/backend-posthog-demo" rel="noopener">Source on GitHub →</a>
         </li>
         <li class="card" data-reveal style="--i:2">
-          <p class="eyebrow">GitHub</p>
+          <p class="eyebrow">2019 – 2022 · Teknologföreningen</p>
+          <h3>Student-nation apps</h3>
+          <p>A registration system for Teknologföreningen's annual ball, built on Node and PostgreSQL, and later a hand in the digital freshman points booklet, E-Phuxpoängshäfte.</p>
+          <a href="https://github.com/axelcedercreutz/arsfest" rel="noopener">Årsfest registration →</a>
+          <a href="https://github.com/Teknologforeningen/e-phuxpoangshafte" rel="noopener">E-Phuxpoängshäfte →</a>
+        </li>
+        <li class="card" data-reveal style="--i:3">
+          <p class="eyebrow">2020 – 2021 · Coursework and hackathons</p>
+          <h3>The practice reps</h3>
+          <p>Aalto's web software development project, the full set of Full Stack Open assignments, and a StupidHack weekend with a Telegram bot that had no business existing.</p>
+          <a href="https://github.com/axelcedercreutz/project-self-monitoring" rel="noopener">Self-monitoring app →</a>
+          <a href="https://github.com/axelcedercreutz/fullstackopen" rel="noopener">Full Stack Open →</a>
+          <a href="https://github.com/axelcedercreutz/stupidhack-2021" rel="noopener">StupidHack 2021 →</a>
+        </li>
+        <li class="card" data-reveal style="--i:4">
+          <p class="eyebrow">GitHub · since 2016</p>
           <h3>Everything else</h3>
-          <p>Older projects, forks and experiments, back to the very first ones from 2016. Some of it is embarrassing. That is how you know it is real.</p>
+          <p>Twenty-odd public repositories, forks and experiments, back to the very first ones from a Toronto summer. Some of it is embarrassing. That is how you know it is real.</p>
           <a href={site.github} rel="me noopener">github.com/axelcedercreutz →</a>
         </li>
       </ul>
@@ -130,7 +146,7 @@ import { site } from "../data/site";
   .timeline p { color: var(--ink-2); margin: 6px 0 0; max-width: 62ch; }
   .cards { list-style: none; display: grid; gap: 16px; }
   @media (min-width: 640px) { .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (min-width: 960px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 960px) { .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); } .cards li:nth-child(4), .cards li:nth-child(5) { grid-column: span 1; } }
   .cards .card { display: grid; gap: 8px; align-content: start; }
   .cards .card > * { min-width: 0; overflow-wrap: anywhere; }
   .cards h3 { font-size: 1.15rem; }

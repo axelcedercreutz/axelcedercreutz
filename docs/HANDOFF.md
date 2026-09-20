@@ -43,7 +43,8 @@ The items below could not be verified from any reachable source. Each is a visib
 - Profile README in this repository (Gosta Labs, years of experience, interests, ex-athlete).
 - Public search snippets of the LinkedIn profile and posts (headline, Helsinki, Rentle, recommendation wording), Gosta Labs seed-round coverage (Vestbee, Pääomasijoittajat, Cision, FAIR EDIH), F-liiga statistics on nhlfinns.net and Pääkallo.fi transfer notes. LinkedIn itself is blocked from the build environment, so nothing was read from the profile page directly.
 - `axelcedercreutz/axelcedercreutz.github.io` (2017 site): education, BrainStation, LinkedIn URL, email.
-- Public repositories `darts-app` and `backend-posthog-demo`: READMEs.
+- Public repositories `darts-app`, `backend-posthog-demo`, `arsfest`, `project-self-monitoring`, `fullstackopen`, `stupidhack-2021`: READMEs; `Teknologforeningen/e-phuxpoangshafte`: commit history (Axel's commits 2021–2022).
+- GitHub profile via the API: bio "Product @Gosta-Labs-Oy", location Helsinki, account since June 2016, 23 public repositories.
 - RinkView screenshots: `docs/img/*.png` from the RinkView repository.
 
 ## Deliberately out of scope
