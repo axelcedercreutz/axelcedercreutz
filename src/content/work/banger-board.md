@@ -5,12 +5,13 @@ summary: Projections, value over replacement, a draft room that reasons about wa
 order: 2
 year: "2026"
 role: Sole builder — model, data pipeline, product, deployment
-status: Deployed on Vercel for one league
+status: Live on Vercel
 accent: ember
 stack: [TypeScript, Next.js, React, Vitest, Vite, Redis, Vercel, Python]
-links: []
+links:
+  - label: Open the live app
+    href: https://nhl-fantasy-draft-tool-axelcedercreutzs-projects.vercel.app/
 pending:
-  - "Live app: the deployment is behind Vercel Authentication; confirm a public URL or keep it private"
   - "Source repository: the nhl-fantasy-draft-tool repo is private; make it public and add the link, or drop this line"
 cover: ../../assets/work/bangerboard-draft.png
 coverAlt: Banger Board draft room. A roster panel with open slots on the left, a ranked list of players in the middle showing projected points and gain versus waiting, and a position outlook panel on the right estimating the best player available at the next pick for each slot.
