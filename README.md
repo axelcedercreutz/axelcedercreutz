@@ -1,15 +1,22 @@
-# Hi there 👋
+# Hi, I'm Axel 👋
 
-## About Me
+**Product engineer.** I build products end to end: interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in early-stage companies, first at Rentle and now in product at [Gosta Labs](https://gostalabs.com), a Helsinki healthtech startup building an AI operating system for oncology teams.
 
-I am a social Swiss army knife of a software engineer with over 8 years of experience in software and data engineering in startups. My versatility as a developer is my biggest asset, as I can work at any part of a
-company’s tech stack. The wide toolset has allowed me to master self-organization and team prioritization to focus on what matters for the product and the business.
+Everything else, including case studies and a blog, lives at **[axelcedercreutz.fi](https://axelcedercreutz.fi)**.
 
-I’m an ex-athlete, so teamwork, discipline, and strategic thinking are second nature to me. I take great pride in enabling my co-workers to be more efficient by removing blockers.
+## Things I built and run myself
 
-## Current Work
+- **RinkView** — shot quality, matchups and lineup decisions for a full NHL season (1,312 games, all 32 teams), with the uncertainty kept on screen. Django + Pandas API, framework-free D3/Highcharts modules in a Next.js shell, one stateless Cloud Run container. [Live demo](https://rinkview-670251302746.europe-north1.run.app) (scale-to-zero, the first load takes a few seconds).
+- **Banger Board** — a fantasy hockey draft platform for a league whose scoring makes public rankings wrong: value over replacement, gain-over-waiting suggestions, a mock-draft simulator, live market data and two-device draft-night sync.
+- **Budgy** — household budgeting for couples: bank sync, one ingestion path, effective-dated plans, an assistant that never invents a number, per-household encryption, and an MCP server with its own OAuth flow.
 
-I am currently working as a Software Engineer at [Gosta Labs](https://gostalabs.com), a B2B med tech startup. My role involves developing software and data solutions that enhance our products. This has allowed me to join two of my passions - data and software - to create value for users from data insights that otherwise wouldn’t be discovered.
+## This repository
 
-## Professional Interests
-Growth and Analytics, Data, Environment / BioTech, Web Development
+Also the source of [axelcedercreutz.fi](https://axelcedercreutz.fi): an [Astro](https://astro.build) site with static output, Markdown content collections for case studies and posts, no client framework, no analytics. See [docs/SITE.md](docs/SITE.md) for how it is organised and [docs/HANDOFF.md](docs/HANDOFF.md) for what still needs confirming.
+
+```sh
+npm install
+npm run dev      # write, preview
+npm run build    # dist/
+npm test         # checks over the built HTML
+```

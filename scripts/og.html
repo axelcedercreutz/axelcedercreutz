@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>OG card source</title>
+<style>
+  @font-face { font-family: "Bricolage Grotesque"; src: url("/public/fonts/BricolageGrotesque-latin.woff2") format("woff2"); font-weight: 300 800; }
+  @font-face { font-family: "JetBrains Mono"; src: url("/public/fonts/JetBrainsMono-latin.woff2") format("woff2"); font-weight: 400 700; }
+  html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+  body { background: #f3efe6; color: #15171b; font-family: "Bricolage Grotesque", sans-serif; position: relative; }
+  .grid { position: absolute; inset: 0; background-image: radial-gradient(rgba(21,23,27,.18) 1.2px, transparent 1.4px); background-size: 22px 22px; -webkit-mask-image: radial-gradient(ellipse 60% 80% at 80% 40%, #000 20%, transparent 75%); mask-image: radial-gradient(ellipse 60% 80% at 80% 40%, #000 20%, transparent 75%); }
+  .in { position: absolute; inset: 0; padding: 72px 80px; display: flex; flex-direction: column; justify-content: space-between; }
+  .eyebrow { font-family: "JetBrains Mono", monospace; font-size: 20px; letter-spacing: .12em; text-transform: uppercase; color: #676c74; }
+  .eyebrow b { color: #15171b; font-weight: 600; }
+  h1 { margin: 0; font-size: 92px; font-weight: 800; letter-spacing: -.04em; line-height: .96; max-width: 11ch; }
+  mark { background: linear-gradient(transparent 55%, #d4f34a 55%, #d4f34a 92%, transparent 92%); color: inherit; padding: 0 .06em; }
+  .foot { display: flex; justify-content: space-between; align-items: flex-end; }
+  .stat { display: flex; gap: 34px; font-family: "JetBrains Mono", monospace; font-size: 16px; color: #464b53; }
+  .stat div { display: grid; gap: 4px; }
+  .stat span { font-size: 11px; letter-spacing: .14em; color: #676c74; }
+  .stat b { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 18px; color: #15171b; }
+  .mark { width: 64px; height: 64px; border-radius: 16px; background: #15171b; color: #f3efe6; display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 20px; position: relative; }
+  .mark i { position: absolute; top: -8px; right: -8px; width: 20px; height: 20px; border-radius: 999px; background: #ff4d1c; }
+</style>
+</head>
+<body>
+  <div class="grid"></div>
+  <div class="in">
+    <div class="eyebrow"><b>Axel Cedercreutz</b> · Product engineer · Finland</div>
+    <h1>I build products end to end. <mark>Boring parts included.</mark></h1>
+    <div class="foot">
+      <div class="stat">
+        <div><span>POS</span><b>Product engineer</b></div>
+        <div><span>YRS</span><b>8+</b></div>
+        <div><span>SIDE</span><b>RinkView · Banger Board · Budgy</b></div>
+        <div><span>URL</span><b>axelcedercreutz.fi</b></div>
+      </div>
+      <div class="mark">AC<i></i></div>
+    </div>
+  </div>
+</body>
+</html>

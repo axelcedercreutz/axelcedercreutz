@@ -1,0 +1,15 @@
+{
+  "$comment": "Registry of every external URL the site may link to, with where it was verified. tests/site.test.mjs fails the build output on any external href not listed here, so nothing gets guessed. `npm run check:links` fetches each one.",
+  "links": [
+    { "url": "https://github.com/axelcedercreutz", "label": "GitHub profile", "source": "Commit author on all three featured repos; the old 2017 site linked the same profile." },
+    { "url": "https://www.linkedin.com/in/axel-cedercreutz", "label": "LinkedIn profile", "source": "Linked from the 2017 axelcedercreutz.github.io site. LinkedIn blocks automated fetches; listed in the handoff for confirmation." },
+    { "url": "mailto:axel.cedercreutz@gmail.com", "label": "Email", "source": "Commit author email on the rinkview repository; also the contact address on the 2017 site. Listed in the handoff for confirmation." },
+    { "url": "https://gostalabs.com", "label": "Gosta Labs", "source": "Profile README in this repository." },
+    { "url": "https://rinkview-670251302746.europe-north1.run.app", "label": "RinkView live demo (Cloud Run)", "source": "rinkview/README.md 'Live demo' link and the deploy workflow's deterministic service URL." },
+    { "url": "https://github.com/axelcedercreutz/darts-app", "label": "darts-app repository (public)", "source": "Public repository under the same GitHub account; README read." },
+    { "url": "https://github.com/axelcedercreutz/backend-posthog-demo", "label": "backend-posthog-demo repository (public)", "source": "Public repository under the same GitHub account; README read." },
+    { "url": "https://github.com/axelcedercreutz/axelcedercreutz", "label": "This site's repository", "source": "The repository this file lives in." },
+    { "url": "https://astro.build", "label": "Astro", "source": "The framework this site is built with; linked from the blog post about the site." },
+    { "url": "https://github.com/google/fonts/tree/main/ofl/bricolagegrotesque", "label": "Bricolage Grotesque on Google Fonts' repository", "source": "Where the display font was fetched from (OFL)." }
+  ]
+}

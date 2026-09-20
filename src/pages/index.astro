@@ -1,0 +1,144 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import Marquee from "../components/Marquee.astro";
+import WorkCard from "../components/WorkCard.astro";
+import PostList from "../components/PostList.astro";
+import HeroCard from "../components/HeroCard.astro";
+import { site } from "../data/site";
+
+const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+const posts = (await getCollection("blog", ({ data }) => (import.meta.env.PROD ? !data.draft : true)))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+const headline = "I build products end to end.";
+const words = headline.split(" ");
+
+const marquee = [
+  "Product engineering", "TypeScript", "Python", "Postgres", "Data pipelines", "Next.js", "Django",
+  "Design systems", "Expected goals", "Encryption, done properly", "Cloud Run", "Small teams",
+  "Ship, measure, repeat", "Floorball", "No cookies",
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: site.name,
+  jobTitle: site.role,
+  url: site.url + "/",
+  email: `mailto:${site.email}`,
+  sameAs: [site.github, site.linkedin],
+  worksFor: { "@type": "Organization", name: site.employer.name, url: site.employer.url },
+  knowsAbout: ["Product engineering", "Full-stack web development", "Data engineering", "Applied statistics", "TypeScript", "Python", "PostgreSQL"],
+};
+---
+
+<Base title={site.name} ogType="profile" jsonLd={jsonLd}>
+  <section class="hero grid-bg">
+    <div class="wrap hero-grid">
+      <div>
+      <p class="eyebrow" data-reveal><b>{site.name}</b> · {site.role} · Helsinki</p>
+      <h1 aria-label={`${headline} Boring parts included.`}>
+        <span aria-hidden="true">
+          {words.map((w, i) => (<><span class="hero-word" style={`--w:${i}`}>{w}</span>{" "}</>))}
+          <br />
+          <span class="hero-word" style={`--w:${words.length}`}><mark>Boring parts included.</mark></span>
+        </span>
+      </h1>
+      <p class="lede" data-reveal style="--i:2">
+        Interface, data model, pipeline, deploy, and the on-call after. Eight-plus years in early-stage companies, first at {site.previous.name} and now in product at{" "}
+        <a href={site.employer.url} rel="noopener">{site.employer.name}</a>, {site.employer.blurb}. After hours I build tools for hockey people and a budgeting app for households, and I write about what I learn doing it.
+      </p>
+      <div class="cta" data-reveal style="--i:3">
+        <a class="btn" href="/work">See the work <svg viewBox="0 0 16 16" class="arrow" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+        <a class="btn ghost" href="/about">How I work</a>
+      </div>
+
+      </div>
+      <div class="card-col" data-reveal style="--i:2">
+        <HeroCard />
+      </div>
+    </div>
+  </section>
+
+  <Marquee items={marquee} />
+
+  <section class="section" id="work">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="row">
+          <p class="eyebrow">Selected work</p>
+          <a class="more" href="/work">All case studies →</a>
+        </div>
+        <h2>Three things I built and run myself.</h2>
+        <p>Each one is mine from the first sketch to the deploy pipeline. Two are about hockey, one is about money. All three are about shipping something people actually use.</p>
+      </div>
+      <div class="work-grid">
+        {work.map((entry, i) => <WorkCard entry={entry} index={i} featured={i === 0} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section principles">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">How I work</p>
+        <h2>Three rules I keep breaking things against.</h2>
+      </div>
+      <ol class="rules">
+        <li data-reveal style="--i:0">
+          <span class="numeral filled">1</span>
+          <h3>Own the whole problem.</h3>
+          <p>Talk to the people who have it, decide what to build, build it, run it afterwards. The interesting bugs live in the handoffs, so I try not to have any.</p>
+        </li>
+        <li data-reveal style="--i:1">
+          <span class="numeral filled">2</span>
+          <h3>Measure it, don't argue about it.</h3>
+          <p>Instrument first, opinions second. It is why the analytics tools I build put the uncertainty on screen instead of hiding it behind a confident number.</p>
+        </li>
+        <li data-reveal style="--i:2">
+          <span class="numeral filled">3</span>
+          <h3>Boring infrastructure, exciting product.</h3>
+          <p>Deploys should be dull, tests should be fast, and the schema should be honest. That is what buys the freedom to be playful where it counts.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="row">
+          <p class="eyebrow">Writing</p>
+          <a class="more" href="/blog">All posts →</a>
+        </div>
+        <h2>Notes from the build.</h2>
+        <p>Short, specific posts about how things were made and what went sideways. No listicles.</p>
+      </div>
+      <PostList posts={posts} />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { padding-block: clamp(64px, 10vw, 128px) clamp(48px, 7vw, 88px); }
+  .hero h1 { margin: 18px 0 26px; max-width: 12ch; }
+  .lede { font-size: clamp(1.1rem, 1.5vw, 1.3rem); color: var(--ink-2); max-width: 56ch; line-height: 1.5; }
+  .lede a { text-decoration-color: var(--ember); }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px; }
+  .hero-grid { display: grid; gap: 48px; align-items: center; }
+  .card-col { display: flex; justify-content: center; padding-top: 12px; }
+  @media (min-width: 900px) { .hero-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: clamp(32px, 5vw, 72px); } .card-col { justify-content: flex-end; padding: 0 16px 0 0; } }
+  .more { font-weight: 600; text-decoration: none; color: var(--ink-2); }
+  .more:hover { color: var(--ember-ink); }
+  .work-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .work-grid > :global(.featured) { grid-column: 1 / -1; } }
+  .principles { background: var(--bg-2); border-block: 1px solid var(--line); }
+  .rules { list-style: none; display: grid; gap: 20px; }
+  @media (min-width: 800px) { .rules { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  .rules li { display: grid; gap: 10px; align-content: start; padding: 26px 24px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
+  .rules .numeral { font-size: 3.4rem; }
+  .rules h3 { font-size: 1.35rem; }
+  .rules p { color: var(--ink-2); margin: 0; }
+</style>

@@ -1,0 +1,60 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import { site } from "../../data/site";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => (import.meta.env.PROD ? !data.draft : true));
+  return posts.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const fmt = (x: Date) => x.toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+const words = (entry.body ?? "").split(/\s+/).filter(Boolean).length;
+const minutes = Math.max(1, Math.round(words / 220));
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: d.title,
+  description: d.description,
+  datePublished: d.pubDate.toISOString(),
+  dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
+  author: { "@type": "Person", name: site.name, url: site.url + "/" },
+  mainEntityOfPage: `${site.url}/blog/${entry.id}`,
+};
+---
+
+<Base title={d.title} description={d.description} path={`/blog/${entry.id}`} ogType="article" publishedTime={d.pubDate} jsonLd={jsonLd}>
+  <article class="post">
+    <header class="wrap">
+      <p class="eyebrow"><a href="/blog">Writing</a> / <time datetime={d.pubDate.toISOString()}>{fmt(d.pubDate)}</time> · {minutes} min read{d.draft && <span class="draft">draft</span>}</p>
+      <h1>{d.title}</h1>
+      <p class="lede">{d.description}</p>
+      {d.tags.length > 0 && <ul class="tags">{d.tags.map((t) => <li class="tag">{t}</li>)}</ul>}
+    </header>
+    <div class="wrap">
+      <div class="prose">
+        <Content />
+      </div>
+      {d.updatedDate && <p class="updated mono">Updated {fmt(d.updatedDate)}</p>}
+      <p class="back"><a href="/blog">← All posts</a></p>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post header { padding-block: clamp(40px, 6vw, 80px) clamp(24px, 3vw, 36px); display: grid; gap: 16px; }
+  .post header .eyebrow a { text-decoration: none; color: var(--ink-3); }
+  .post header .eyebrow a:hover { color: var(--ink); }
+  .post h1 { font-size: clamp(2.2rem, 5.5vw, 4.2rem); max-width: 18ch; }
+  .lede { font-size: clamp(1.1rem, 1.6vw, 1.3rem); color: var(--ink-2); max-width: 56ch; margin: 0; line-height: 1.45; }
+  .draft { margin-left: 10px; padding: 2px 7px; border-radius: 999px; background: var(--todo-bg); color: var(--todo); border: 1px dashed var(--todo); }
+  .prose { font-size: 1.1rem; line-height: 1.65; }
+  .updated { font-size: 0.74rem; color: var(--ink-3); margin-top: 40px; }
+  .back { margin-block: 40px 80px; }
+  .back a { font-weight: 600; text-decoration: none; }
+  .back a:hover { color: var(--ember-ink); }
+</style>

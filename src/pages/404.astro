@@ -1,0 +1,23 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Not found" description="That page is not on this site, or it moved. The work, the writing and the about page are all one click away." path="/404">
+  <section class="section">
+    <div class="wrap">
+      <p class="eyebrow">404</p>
+      <h1 class="h">Offside.</h1>
+      <p class="muted lede">That page is not on this site, or it moved. The work, the writing and the about page are all one click away.</p>
+      <div class="cta">
+        <a class="btn" href="/">Back to the start</a>
+        <a class="btn ghost" href="/work">See the work</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .h { font-size: clamp(3rem, 12vw, 8rem); margin: 10px 0 18px; }
+  .lede { font-size: 1.15rem; max-width: 46ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+</style>

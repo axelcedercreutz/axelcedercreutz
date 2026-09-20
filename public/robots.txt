@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://axelcedercreutz.fi/sitemap-index.xml

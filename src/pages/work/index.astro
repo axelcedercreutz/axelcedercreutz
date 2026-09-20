@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import WorkCard from "../../components/WorkCard.astro";
+
+const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+---
+
+<Base title="Work" description="Case studies: RinkView, Banger Board and Budgy. Three products designed, built, shipped and run end to end by Axel Cedercreutz." path="/work">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Work</p>
+        <h1 class="h">Case studies</h1>
+        <p>Three products, each one owned end to end. Every number on these pages was checked against the repository it came from; anything I could not verify is marked as pending rather than guessed.</p>
+      </div>
+      <div class="work-grid">
+        {work.map((entry, i) => <WorkCard entry={entry} index={i} featured={i === 0} headingLevel="h2" />)}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .h { font-size: clamp(2.4rem, 5.5vw, 4.4rem); }
+  .work-grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr); }
+  @media (min-width: 900px) { .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .work-grid > :global(.featured) { grid-column: 1 / -1; } }
+</style>

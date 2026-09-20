@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from "astro:content";
+interface Props { posts: CollectionEntry<"blog">[]; }
+const { posts } = Astro.props;
+const fmt = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+---
+
+{posts.length === 0 ? (
+  <p class="empty muted">Nothing published yet. The first posts are in the works; subscribe to the <a href="/rss.xml">RSS feed</a> and they will find you.</p>
+) : (
+  <ol class="posts">
+    {posts.map((p, i) => (
+      <li data-reveal style={`--i:${i}`}>
+        <a href={`/blog/${p.id}`}>
+          <span class="date mono">{fmt(p.data.pubDate)}</span>
+          <span class="text">
+            <span class="title">{p.data.title}{p.data.draft && <span class="draft mono">draft</span>}</span>
+            <span class="desc">{p.data.description}</span>
+          </span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+)}
+
+<style>
+  .posts { list-style: none; border-top: 1px solid var(--line); }
+  .posts li { border-bottom: 1px solid var(--line); }
+  .posts a { display: grid; grid-template-columns: 1fr auto; gap: 6px 20px; padding: 20px 4px; text-decoration: none; transition: background 0.2s var(--ease); border-radius: 6px; }
+  .posts a:hover { background: var(--bg-2); }
+  .date { font-size: 0.74rem; color: var(--ink-3); letter-spacing: 0.04em; grid-column: 1 / -1; }
+  .text { display: grid; gap: 4px; }
+  .title { font-weight: 700; font-size: 1.25rem; letter-spacing: -0.01em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .desc { color: var(--ink-2); max-width: 60ch; }
+  .arrow { align-self: center; color: var(--ember); font-size: 1.4rem; transition: transform 0.3s var(--ease); }
+  .posts a:hover .arrow { transform: translateX(4px); }
+  .draft { font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 2px 7px; border-radius: 999px; background: var(--todo-bg); color: var(--todo); border: 1px dashed var(--todo); font-weight: 500; }
+  @media (min-width: 640px) { .posts a { grid-template-columns: 130px 1fr auto; } .date { grid-column: auto; padding-top: 8px; } }
+  .empty { padding: 26px; border: 1px dashed var(--line-2); border-radius: var(--radius); }
+</style>

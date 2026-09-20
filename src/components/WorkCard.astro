@@ -1,0 +1,52 @@
+---
+import { Image } from "astro:assets";
+import type { CollectionEntry } from "astro:content";
+
+interface Props { entry: CollectionEntry<"work">; index: number; featured?: boolean; headingLevel?: "h2" | "h3" }
+const { entry, index, featured = false, headingLevel = "h3" } = Astro.props;
+const Heading = headingLevel;
+const d = entry.data;
+const num = String(index + 1).padStart(2, "0");
+---
+
+<a class:list={["card", "work-card", `accent-${d.accent}`, { featured }]} href={`/work/${entry.id}`} data-reveal style={`--i:${index}`} data-tilt>
+  <div class="media">
+    <Image src={d.cover} alt={d.coverAlt} width={featured ? 1200 : 800} widths={[480, 800, 1200]} sizes={featured ? "(min-width: 900px) 60vw, 100vw" : "(min-width: 900px) 33vw, 100vw"} format="webp" quality={78} loading={index === 0 ? "eager" : "lazy"} />
+  </div>
+  <div class="body">
+    <div class="topline">
+      <span class="numeral">{num}</span>
+      <span class="year eyebrow">{d.year} · {d.status}</span>
+    </div>
+    <Heading class="title">{d.title}</Heading>
+    <p>{d.tagline}</p>
+    <ul class="tags">
+      {d.stack.slice(0, featured ? 6 : 4).map((s) => <li class="tag">{s}</li>)}
+    </ul>
+    <span class="go" aria-hidden="true">Read the case study <svg viewBox="0 0 16 16" class="arrow"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+  </div>
+</a>
+
+<style>
+  .work-card { display: grid; gap: 18px; padding: 14px; overflow: hidden; --a: var(--ember); --a-soft: var(--ember-soft); }
+  .accent-ice { --a: var(--ice); --a-soft: var(--ice-soft); }
+  .accent-moss { --a: var(--moss); --a-soft: var(--moss-soft); }
+  .media { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); background: var(--a-soft); aspect-ratio: 16 / 10; }
+  .media img { width: 100%; height: 100%; object-fit: cover; object-position: top left; transition: transform 0.6s var(--ease); }
+  .work-card:hover .media img { transform: scale(1.03); }
+  .body { display: grid; gap: 10px; padding: 4px 8px 10px; }
+  .topline { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .numeral { font-size: 2.4rem; -webkit-text-stroke-color: var(--a); }
+  .work-card:hover .numeral { color: var(--a); -webkit-text-stroke: 0; }
+  .title { font-size: 1.45rem; }
+  p { color: var(--ink-2); margin: 0; }
+  .go { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.92rem; color: var(--a); margin-top: 4px; }
+  .go .arrow { width: 14px; height: 14px; transition: transform 0.3s var(--ease); }
+  .work-card:hover .go .arrow { transform: translateX(4px); }
+  .featured .title { font-size: clamp(1.7rem, 3vw, 2.3rem); }
+  @media (min-width: 900px) {
+    .featured { grid-template-columns: 1.35fr 1fr; align-items: center; padding: 16px; }
+    .featured .body { padding: 10px 14px; }
+    .featured .media { aspect-ratio: 16 / 11; }
+  }
+</style>

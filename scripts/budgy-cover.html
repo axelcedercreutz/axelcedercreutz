@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Budgy cover composition</title>
+<style>
+  /* A composition built from Budgy's real "Hearth" design tokens (docs/design-direction.md):
+     Paper background, warm card, deep-spruce primary, Inter tabular numerals, the eight validated chart hues.
+     It stands in until a product screenshot is available. Every number shown is illustrative. */
+  @font-face { font-family: "Bricolage"; src: url("../public/fonts/BricolageGrotesque-latin.woff2") format("woff2"); font-weight: 300 800; }
+  html, body { width: 1440px; height: 900px; margin: 0; overflow: hidden; }
+  body { background: hsl(42 30% 97%); color: hsl(25 20% 14%); font-family: Inter, "Bricolage", system-ui, sans-serif; display: grid; place-items: center; }
+  .frame { width: 1180px; display: grid; grid-template-columns: 1.3fr 1fr; gap: 24px; }
+  .card { background: hsl(40 40% 99.4%); border: 1px solid hsl(38 22% 88%); border-radius: 18px; padding: 28px 30px; box-shadow: 0 1px 2px hsl(25 20% 14% / .05), 0 18px 40px -20px hsl(25 20% 14% / .25); }
+  .label { font-size: 13px; color: hsl(28 10% 42%); letter-spacing: .02em; }
+  .hero { font-size: 64px; font-weight: 600; letter-spacing: -.03em; font-variant-numeric: tabular-nums; margin: 6px 0 4px; }
+  .sub { font-size: 16px; color: hsl(28 10% 42%); }
+  .pos { color: hsl(152 52% 30%); }
+  .bars { display: flex; height: 26px; border-radius: 8px; overflow: hidden; margin: 26px 0 14px; }
+  .legend { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 18px; font-size: 14px; white-space: nowrap; }
+  .legend div { display: flex; align-items: center; gap: 8px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  .legend b { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 500; }
+  .rows { display: grid; gap: 0; margin-top: 8px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 8px 14px; padding: 12px 0; border-top: 1px solid hsl(38 22% 92%); align-items: center; }
+  .who { display: flex; align-items: center; gap: 10px; }
+  .avatar { width: 28px; height: 28px; border-radius: 999px; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 600; }
+  .merchant { font-weight: 500; }
+  .cat { font-size: 12px; color: hsl(28 10% 42%); }
+  .amt { font-variant-numeric: tabular-nums; font-weight: 500; }
+  .neg { color: hsl(8 66% 44%); }
+  .plan { margin-top: 22px; }
+  .plan .line { display: grid; grid-template-columns: 120px 1fr 90px; gap: 12px; align-items: center; font-size: 14px; padding: 8px 0; }
+  .track { height: 8px; background: hsl(40 20% 92.5%); border-radius: 999px; overflow: hidden; }
+  .fill { height: 100%; border-radius: 999px; }
+  .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+  .chip { width: 30px; height: 30px; border-radius: 9px; background: hsl(186 40% 26%); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+  .brand span { font-weight: 600; font-size: 15px; }
+  .month { margin-left: auto; font-size: 13px; color: hsl(28 10% 42%); }
+</style>
+</head>
+<body>
+  <div class="frame">
+    <div class="card">
+      <div class="brand"><div class="chip">B</div><span>Our budget</span><span class="month">June · month at a glance</span></div>
+      <div class="label">Left to spend this month</div>
+      <div class="hero pos">1 284 €</div>
+      <div class="sub">4 500 € in · 3 216 € out · on pace for the plan</div>
+      <div class="bars">
+        <span style="flex:27;background:#078B72"></span><span style="flex:14;background:#B57B0A"></span><span style="flex:12;background:#4A6FC2"></span><span style="flex:11;background:#C0562F"></span><span style="flex:9;background:#994DA6"></span><span style="flex:8;background:#6A7D1F"></span><span style="flex:6;background:#C74E76"></span><span style="flex:5;background:#8A6408"></span>
+      </div>
+      <div class="legend">
+        <div><i style="background:#078B72"></i>Home<b>1 350 €</b></div>
+        <div><i style="background:#B57B0A"></i>Groceries<b>612 €</b></div>
+        <div><i style="background:#4A6FC2"></i>Getting around<b>418 €</b></div>
+        <div><i style="background:#C0562F"></i>Fun<b>306 €</b></div>
+        <div><i style="background:#994DA6"></i>Kids<b>245 €</b></div>
+        <div><i style="background:#6A7D1F"></i>Saving<b>675 €</b></div>
+        <div><i style="background:#C74E76"></i>Health<b>140 €</b></div>
+        <div><i style="background:#8A6408"></i>Everything else<b>110 €</b></div>
+      </div>
+      <div class="plan">
+        <div class="label">Plan vs. actual</div>
+        <div class="line"><span>Groceries</span><div class="track"><div class="fill" style="width:118%;background:hsl(8 66% 44%)"></div></div><b class="amt neg">118 %</b></div>
+        <div class="line"><span>Getting around</span><div class="track"><div class="fill" style="width:84%;background:#4A6FC2"></div></div><b class="amt">84 %</b></div>
+        <div class="line"><span>Fun</span><div class="track"><div class="fill" style="width:62%;background:#C0562F"></div></div><b class="amt">62 %</b></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="label">Recent · shared ledger</div>
+      <div class="rows">
+        <div class="row"><div class="who"><span class="avatar" style="background:#078B72">E</span><div><div class="merchant">K-Market</div><div class="cat">Groceries · synced</div></div></div><span class="amt neg">−48,20 €</span></div>
+        <div class="row"><div class="who"><span class="avatar" style="background:#B57B0A">A</span><div><div class="merchant">HSL</div><div class="cat">Getting around · synced</div></div></div><span class="amt neg">−64,70 €</span></div>
+        <div class="row"><div class="who"><span class="avatar" style="background:#078B72">E</span><div><div class="merchant">Daycare</div><div class="cat">Kids · recurring</div></div></div><span class="amt neg">−245,00 €</span></div>
+        <div class="row"><div class="who"><span class="avatar" style="background:#B57B0A">A</span><div><div class="merchant">Salary</div><div class="cat">Income · synced</div></div></div><span class="amt pos">+2 250,00 €</span></div>
+        <div class="row"><div class="who"><span class="avatar" style="background:#B57B0A">A</span><div><div class="merchant">Alko</div><div class="cat">Fun · rule: contains "alko"</div></div></div><span class="amt neg">−31,90 €</span></div>
+        <div class="row"><div class="who"><span class="avatar" style="background:#078B72">E</span><div><div class="merchant">Electricity</div><div class="cat">Home · expected in 4 days</div></div></div><span class="amt">~89 €</span></div>
+      </div>
+      <div class="plan">
+        <div class="label">Contributions this month</div>
+        <div class="line"><span>Emmi · 58 %</span><div class="track"><div class="fill" style="width:58%;background:#078B72"></div></div><b class="amt">1 240 €</b></div>
+        <div class="line"><span>Aleksi · 42 %</span><div class="track"><div class="fill" style="width:42%;background:#B57B0A"></div></div><b class="amt">890 €</b></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
