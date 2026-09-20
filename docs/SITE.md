@@ -68,8 +68,24 @@ Bricolage Grotesque for words, JetBrains Mono for anything that reads like a sco
 number the case studies. Motion is few and deliberate: a word-by-word headline, a marquee, reveals on scroll, a
 tilt on the work cards, short view transitions between pages. All of it is off under `prefers-reduced-motion`.
 
-## Deployment
+## Deployment: Vercel
 
-Static output; any host works (GitHub Pages, Cloudflare Pages, Netlify, Vercel, the current axelcedercreutz.fi
-host). Set the `site` in `astro.config.mjs` if the domain ever changes. DNS for axelcedercreutz.fi and the
-aced.fi product subdomains are separate infrastructure work; nothing here deploys anything.
+The site is static, so Vercel needs no adapter and no environment variables. `vercel.json` carries the
+framework hint, clean URLs (the build emits `work.html`, served as `/work`), long cache headers for hashed
+assets and fonts, and a strict Content-Security-Policy. The inline scripts are why `script-src` allows
+`'unsafe-inline'`: the theme bootstrap and Astro's hydration script are inlined by design.
+
+First-time setup (a few minutes, in the Vercel dashboard):
+
+1. **Add New → Project → Import** `axelcedercreutz/axelcedercreutz`. Vercel detects Astro; leave build command
+   `astro build` and output `dist` as detected. Node 22 or newer.
+2. Deploy. Every push to `main` then redeploys production; pull requests get preview URLs.
+3. **Settings → Domains**: add `axelcedercreutz.fi` and `www.axelcedercreutz.fi`, pick one as primary
+   (redirect the other). Vercel shows the DNS records to set at the registrar: an `A` record for the apex
+   and a `CNAME` for `www`. Until DNS changes, the `*.vercel.app` URL is the site.
+4. Optional: **Settings → Deployment Protection** off for production, so the URL is public.
+
+Before the domain switch, run `npm run check:release` and clear whatever it lists; it refuses while any
+fact on the page is still marked unconfirmed.
+
+DNS for aced.fi and the product subdomains stays separate infrastructure work.
