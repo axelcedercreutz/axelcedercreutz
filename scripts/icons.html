@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Icon source</title>
+<style>
+  @font-face { font-family: "Bricolage Grotesque"; src: url("/public/fonts/BricolageGrotesque-latin.woff2") format("woff2"); font-weight: 300 800; }
+  html, body { margin: 0; background: transparent; }
+  /* 512 canvas; rendered at several device scale factors and resized by the browser. */
+  .icon { width: 512px; height: 512px; border-radius: 116px; background: #15171b; position: relative; overflow: hidden; font-family: "Bricolage Grotesque", sans-serif; }
+  .icon.square { border-radius: 0; }
+  .ac { position: absolute; left: 0; right: 0; top: 118px; text-align: center; color: #f3efe6; font-weight: 800; font-size: 236px; letter-spacing: -0.06em; line-height: 1; }
+  .dot { position: absolute; right: 78px; top: 82px; width: 74px; height: 74px; border-radius: 999px; background: #ff4d1c; }
+  .bar { position: absolute; left: 96px; right: 96px; bottom: 96px; height: 26px; border-radius: 13px; background: linear-gradient(90deg, #ff4d1c 0 55%, #1f5fff 55% 85%, #d4f34a 85%); }
+</style>
+</head>
+<body>
+  <div class="icon" id="icon"><div class="ac">AC</div><div class="dot"></div><div class="bar"></div></div>
+</body>
+</html>

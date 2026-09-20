@@ -11,7 +11,7 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const dist = join(root, "dist");
 const registry = JSON.parse(readFileSync(join(root, "src/data/links.json"), "utf8")).links;
 const known = new Set(registry.map((l) => l.url));
-const SITE = "https://axelcedercreutz.fi";
+const SITE = (process.env.SITE_ORIGIN || "https://axelcedercreutz.fi").replace(/\/$/, "");
 
 function walk(dir, out = []) {
   for (const f of readdirSync(dir)) {
@@ -148,7 +148,7 @@ test("images carry alt text and dimensions; fonts are self-hosted and licensed",
       assert.ok(attr(img, "width") && attr(img, "height"), `${p.path}: width/height missing on ${attr(img, "src")}`);
     }
   }
-  for (const f of ["fonts/BricolageGrotesque-latin.woff2", "fonts/JetBrainsMono-latin.woff2", "fonts/OFL-BricolageGrotesque.txt", "fonts/OFL-JetBrainsMono.txt", "favicon.svg"]) assert.ok(existsSync(join(dist, f)), `missing ${f}`);
+  for (const f of ["fonts/BricolageGrotesque-latin.woff2", "fonts/JetBrainsMono-latin.woff2", "fonts/OFL-BricolageGrotesque.txt", "fonts/OFL-JetBrainsMono.txt", "favicon.svg", "icons/icon-32.png", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "manifest.webmanifest"]) assert.ok(existsSync(join(dist, f)), `missing ${f}`);
 });
 
 test("unconfirmed facts are marked with data-todo, never as bare TODO text or placeholder metrics", () => {

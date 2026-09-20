@@ -15,12 +15,12 @@ import { site } from "../data/site";
   <p class="name">Cedercreutz</p>
   <p class="pos">Product engineer · full stack, data, infra</p>
   <dl class="stats">
-    <div><dt>Now</dt><dd>Product, {site.employer.name}</dd></div>
+    <div><dt>Now · product at</dt><dd>{site.employer.name}</dd></div>
     <div><dt>Before</dt><dd>{site.previous.name}</dd></div>
     <div><dt>Years in startups</dt><dd><span data-count="8+">8+</span></dd></div>
     <div><dt>Based in</dt><dd>Helsinki</dd></div>
     <div><dt>Side projects live</dt><dd><span data-count="3">3</span></dd></div>
-    <div><dt>Former</dt><dd>Top-league floorball</dd></div>
+    <div><dt>Former life</dt><dd>Floorball pro</dd></div>
   </dl>
   <div class="foot mono">
     <span><i class="live" aria-hidden="true"></i>On shift · Helsinki</span>
@@ -44,12 +44,13 @@ import { site } from "../data/site";
   .stats dd span { color: var(--ember-ink); }
   .foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--line); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
   .foot span { display: inline-flex; align-items: center; gap: 7px; }
-  .live { width: 8px; height: 8px; border-radius: 999px; background: var(--moss); box-shadow: 0 0 0 0 color-mix(in srgb, var(--moss) 50%, transparent); }
+  .live { position: relative; width: 8px; height: 8px; border-radius: 999px; background: var(--moss); }
+  .live::after { content: ""; position: absolute; inset: 0; border-radius: 999px; background: var(--moss); opacity: 0; }
   .sticker { position: absolute; top: -12px; right: -14px; padding: 7px 12px; border-radius: 999px; background: var(--lime); color: #15171b; font-family: var(--mono); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; transform: rotate(6deg); box-shadow: 0 6px 16px -8px rgb(0 0 0 / 0.4); }
   @media (prefers-reduced-motion: no-preference) {
     .hero-card { transform: rotate(-2.5deg); }
     .hero-card.is-tilting { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) rotate(-2.5deg) translateY(-4px); }
-    .live { animation: pulse 2.2s ease-out infinite; }
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--moss) 45%, transparent); } 70% { box-shadow: 0 0 0 10px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+    .live::after { animation: pulse 2.2s ease-out infinite; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 70% { transform: scale(3.2); opacity: 0; } 100% { transform: scale(3.2); opacity: 0; } }
   }
 </style>

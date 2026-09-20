@@ -19,7 +19,7 @@ no third-party requests (fonts are self-hosted under the OFL).
 | `src/data/site.ts` | Name, role, employer, email, social URLs. |
 | `src/data/links.json` | Registry of every external URL with where it was verified. Tests fail on unregistered links. |
 | `src/assets/work/` | Source images for case studies; Astro emits responsive WebP sets at build. |
-| `public/` | Fonts, favicon, robots.txt, `og.png`. |
+| `public/` | Fonts, favicon, icon set and web manifest, robots.txt, `og.png`. |
 | `tests/site.test.mjs` | Checks over the built HTML in `dist/`. |
 | `scripts/` | Release gate, link checker, static server, screenshot and OG helpers. |
 | `docs/HANDOFF.md` | Facts and links awaiting confirmation. |
@@ -35,6 +35,7 @@ npm run check:release  # fails while any <Todo>, pending link or data-todo marke
 npm run check:links    # fetches every URL in src/data/links.json (needs network)
 npm run screenshots    # docs/screenshots/*.jpg at 390, 768 and 1440 px (needs Playwright; build first)
 npm run og             # renders scripts/og.html → public/og.png (needs Playwright)
+npm run icons          # renders scripts/icons.html → public/icons/*.png (needs Playwright)
 ```
 
 ## Writing a post
@@ -69,6 +70,10 @@ number the case studies. Motion is few and deliberate: a word-by-word headline, 
 tilt on the work cards, short view transitions between pages. All of it is off under `prefers-reduced-motion`.
 
 ## Deployment: Vercel
+
+Absolute URLs (canonical, Open Graph image, sitemap, feed) follow the deployed origin: `SITE_ORIGIN` if set,
+otherwise Vercel's production URL, otherwise `https://axelcedercreutz.fi`. Once the domain is attached in Vercel,
+the production URL becomes the domain and nothing needs changing.
 
 The site is static, so Vercel needs no adapter and no environment variables. `vercel.json` carries the
 framework hint, clean URLs (the build emits `work.html`, served as `/work`), long cache headers for hashed
