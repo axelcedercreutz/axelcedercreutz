@@ -30,7 +30,12 @@ const isActive = (href: string) => path === href || path.startsWith(href + "/");
 </header>
 
 <style>
-  .site-header { position: sticky; top: 0; z-index: 40; background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+  /* Static on phones: a sticky bar costs too much of a small viewport and iOS blurs the page through it.
+     Sticky with a near-opaque backdrop from tablet width up. */
+  .site-header { position: relative; z-index: 40; background: var(--bg); border-bottom: 1px solid var(--line); }
+  @media (min-width: 700px) {
+    .site-header { position: sticky; top: 0; background: color-mix(in srgb, var(--bg) 94%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  }
   .bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 68px; }
   .wordmark { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; letter-spacing: -0.01em; }
   .mark { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 10px; background: var(--ink); color: var(--bg); font-family: var(--mono); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.02em; transition: transform 0.3s var(--ease), background 0.2s var(--ease); }
