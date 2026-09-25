@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import { site } from "../../data/site";
+import { absolute, ids } from "../../lib/seo";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog", ({ data }) => (import.meta.env.PROD ? !data.draft : true));
@@ -15,19 +16,27 @@ const fmt = (x: Date) => x.toLocaleDateString("en-GB", { day: "numeric", month: 
 const words = (entry.body ?? "").split(/\s+/).filter(Boolean).length;
 const minutes = Math.max(1, Math.round(words / 220));
 
+const url = absolute(Astro, `/blog/${entry.id}`);
 const jsonLd = {
-  "@context": "https://schema.org",
   "@type": "BlogPosting",
+  "@id": url,
   headline: d.title,
   description: d.description,
   datePublished: d.pubDate.toISOString(),
   dateModified: (d.updatedDate ?? d.pubDate).toISOString(),
-  author: { "@type": "Person", name: site.name, url: site.url + "/" },
-  mainEntityOfPage: `${site.url}/blog/${entry.id}`,
+  inLanguage: "en",
+  wordCount: words,
+  keywords: d.tags,
+  author: { "@id": ids(Astro).person },
+  publisher: { "@id": ids(Astro).person },
+  isPartOf: { "@id": ids(Astro).website },
+  mainEntityOfPage: url,
+  image: absolute(Astro, "/og.png"),
+  url,
 };
 ---
 
-<Base title={d.title} description={d.description} path={`/blog/${entry.id}`} ogType="article" publishedTime={d.pubDate} jsonLd={jsonLd}>
+<Base title={d.title} description={d.description} path={`/blog/${entry.id}`} ogType="article" publishedTime={d.pubDate} modifiedTime={d.updatedDate} tags={d.tags} jsonLd={jsonLd}>
   <article class="post">
     <header class="wrap">
       <p class="eyebrow"><a href="/blog">Writing</a> / <time datetime={d.pubDate.toISOString()}>{fmt(d.pubDate)}</time> · {minutes} min read{d.draft && <span class="draft">draft</span>}</p>

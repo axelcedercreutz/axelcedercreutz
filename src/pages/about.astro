@@ -1,9 +1,12 @@
 ---
 import Base from "../layouts/Base.astro";
 import { site } from "../data/site";
+import { ids } from "../lib/seo";
+
+const jsonLd = { "@type": "ProfilePage", mainEntity: { "@id": ids(Astro).person }, dateModified: "2026-09-20" };
 ---
 
-<Base title="About" description="Who Axel Cedercreutz is, how he works, and the work history behind it: product engineer at Gosta Labs, five years at Twice Commerce, Aalto University, F-liiga floorball." path="/about">
+<Base title="About" description="Who Axel Cedercreutz is, how he works, and the work history behind it: product engineer at Gosta Labs, five years at Twice Commerce, Aalto University, F-liiga floorball." path="/about" ogType="profile" jsonLd={jsonLd}>
   <section class="section intro">
     <div class="wrap two">
       <div>

@@ -37,6 +37,12 @@ const attrs = (html, tag) => [...html.matchAll(new RegExp(`<${tag}\\b[^>]*>`, "g
 const attr = (tagHtml, name) => (tagHtml.match(new RegExp(`\\s${name}="([^"]*)"`)) || [])[1];
 const meta = (html, key, value) => attrs(html, "meta").find((m) => attr(m, key) === value);
 const decode = (s) => s.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&");
+const jsonLd = (html) => {
+  const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  if (!m) return [];
+  const g = JSON.parse(decode(m[1]));
+  return g["@graph"] ?? [g];
+};
 
 test("every page has the basics: lang, viewport, one h1, skip link, main landmark", () => {
   for (const p of pages) {
@@ -54,8 +60,16 @@ test("every page has a title, description, canonical URL that matches its path, 
     assert.ok(title && title.includes("Axel Cedercreutz"), `${p.path}: title "${title}"`);
     const desc = attr(meta(p.html, "name", "description"), "content");
     assert.ok(desc && desc.length >= 50 && desc.length <= 320, `${p.path}: description length ${desc?.length}`);
-    const canonical = attr(attrs(p.html, "link").find((l) => attr(l, "rel") === "canonical"), "href");
-    const expected = p.path === "/404" ? `${SITE}/404` : p.path === "/" ? `${SITE}/` : `${SITE}${p.path}`;
+    const canonicalTag = attrs(p.html, "link").find((l) => attr(l, "rel") === "canonical");
+    const robots = attr(meta(p.html, "name", "robots"), "content") ?? "";
+    if (p.path === "/404") {
+      assert.match(robots, /noindex/, "404 must be noindex");
+      assert.equal(canonicalTag, undefined, "404 must not claim a canonical URL");
+      continue;
+    }
+    assert.match(robots, /^index, follow/, `${p.path}: robots meta`);
+    const canonical = attr(canonicalTag, "href");
+    const expected = p.path === "/" ? `${SITE}/` : `${SITE}${p.path}`;
     assert.equal(canonical, expected, `${p.path}: canonical`);
     for (const k of ["og:type", "og:title", "og:description", "og:url", "og:image", "og:image:width", "og:image:height", "og:image:alt"]) assert.ok(meta(p.html, "property", k), `${p.path}: ${k}`);
     assert.equal(attr(meta(p.html, "property", "og:url"), "content"), canonical, `${p.path}: og:url`);
@@ -73,8 +87,8 @@ test("home page positions a product engineer first and links the work, not a sin
   assert.match(hero, /href="\/work"/, "primary CTA to work");
   const heroText = hero.replace(/<[^>]+>/g, " ");
   assert.ok((heroText.match(/hockey/gi) || []).length <= 1, "hockey is mentioned at most once in the hero");
-  const ld = JSON.parse(decode(home.html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]));
-  assert.equal(ld["@type"], "Person");
+  const ld = jsonLd(home.html).find((n) => n["@type"] === "Person");
+  assert.ok(ld, "Person node on the home page");
   assert.equal(ld.jobTitle, "Product Engineer");
   for (const u of ld.sameAs) assert.ok(known.has(u), `sameAs ${u} not in links.json`);
 });
@@ -171,5 +185,64 @@ test("headings do not skip levels", () => {
     const levels = [...p.html.matchAll(/<h([1-6])\b/g)].map((m) => Number(m[1]));
     let prev = 0;
     for (const l of levels) { assert.ok(l <= prev + 1, `${p.path}: heading jumps from h${prev} to h${l}`); prev = l; }
+  }
+});
+
+test("structured data: one @graph per indexable page with WebSite, Person and resolvable @id references", () => {
+  for (const p of pages) {
+    const nodes = jsonLd(p.html);
+    if (p.path === "/404") { assert.equal(nodes.length, 0, "404 carries no structured data"); continue; }
+    const types = nodes.map((n) => n["@type"]);
+    assert.ok(types.includes("WebSite") && types.includes("Person"), `${p.path}: WebSite and Person nodes (${types})`);
+    if (p.path !== "/") assert.ok(types.includes("BreadcrumbList"), `${p.path}: breadcrumbs`);
+    const ids = new Set(nodes.map((n) => n["@id"]).filter(Boolean));
+    const refs = JSON.stringify(nodes).matchAll(/\{"@id":"([^"]+)"\}/g);
+    for (const [, id] of refs) assert.ok(ids.has(id), `${p.path}: @id reference ${id} is not defined on the page`);
+    for (const n of nodes) {
+      if (n["@type"] === "Organization") continue;
+      for (const k of ["url", "@id", "mainEntityOfPage", "image"]) if (typeof n[k] === "string") assert.ok(n[k].startsWith(SITE + "/"), `${p.path}: ${n["@type"]}.${k} ${n[k]} is off-origin`);
+    }
+    if (p.path.startsWith("/work/")) assert.ok(types.includes("SoftwareApplication"), `${p.path}: case study node`);
+    if (p.path.startsWith("/blog/")) assert.ok(types.includes("BlogPosting"), `${p.path}: post node`);
+  }
+});
+
+test("crawler files: robots.txt allows everything and points at the sitemap; sitemap lists every indexable page and nothing else; llms.txt links resolve", () => {
+  const robots = readFileSync(join(dist, "robots.txt"), "utf8");
+  assert.match(robots, /^User-agent: \*\nAllow: \/$/m, "default rule allows everything");
+  assert.doesNotMatch(robots, /^Disallow: \/$/m, "nothing is blocked by default");
+  assert.match(robots, new RegExp(`^Sitemap: ${SITE.replace(/[.]/g, "\\.")}/sitemap-index.xml$`, "m"), "sitemap URL follows the deployed origin");
+  for (const ua of ["Googlebot", "OAI-SearchBot", "ClaudeBot", "Claude-SearchBot", "PerplexityBot", "GPTBot"]) assert.match(robots, new RegExp(`^User-agent: ${ua}$`, "m"), `${ua} addressed explicitly`);
+
+  const index = readFileSync(join(dist, "sitemap-index.xml"), "utf8");
+  const files = [...index.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1].slice(SITE.length));
+  const locs = files.flatMap((f) => [...readFileSync(join(dist, f), "utf8").matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]));
+  const expected = new Set(pages.filter((p) => p.path !== "/404").map((p) => (p.path === "/" ? `${SITE}/` : `${SITE}${p.path}`)));
+  assert.deepEqual(new Set(locs), expected, "sitemap URLs equal the set of indexable pages");
+  const post = readFileSync(join(dist, files[0]), "utf8").match(/<url><loc>[^<]*\/blog\/[^<]+<\/loc><lastmod>/);
+  assert.ok(post, "posts carry lastmod");
+
+  for (const f of ["llms.txt", "llms-full.txt"]) {
+    const txt = readFileSync(join(dist, f), "utf8");
+    assert.match(txt, /^# Axel Cedercreutz\n\n> /, `${f} starts with the llms.txt header`);
+    for (const [, url] of txt.matchAll(/\]\((https?:[^)]+)\)/g)) {
+      if (url.startsWith(SITE + "/")) {
+        const path = url.slice(SITE.length).replace(/\/$/, "") || "/";
+        assert.ok(pages.some((p) => p.path === path) || existsSync(join(dist, path)), `${f}: ${url} does not resolve`);
+      } else assert.ok(known.has(url), `${f}: external link ${url} not in links.json`);
+    }
+    assert.doesNotMatch(txt, /rinkview-build-notes/, `${f}: drafts stay out`);
+    assert.doesNotMatch(txt, /\bTODO\b|link pending|pending:/, `${f}: no unconfirmed markers`);
+  }
+  const rss = readFileSync(join(dist, "rss.xml"), "utf8");
+  assert.match(rss, new RegExp(`<atom:link href="${SITE.replace(/[.]/g, "\\.")}/rss.xml" rel="self"`), "feed declares its own URL");
+});
+
+test("social cards: every page has a 1200×630 image on this origin, and case studies use their own cover", () => {
+  for (const p of pages) {
+    const og = attr(meta(p.html, "property", "og:image"), "content");
+    const alt = attr(meta(p.html, "property", "og:image:alt"), "content");
+    assert.ok(alt && alt.length > 10, `${p.path}: og:image:alt`);
+    if (p.path.startsWith("/work/")) assert.doesNotMatch(og, /\/og\.png$/, `${p.path}: case study should use its cover as the social image`);
   }
 });

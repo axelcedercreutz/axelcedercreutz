@@ -4,16 +4,26 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { site } from "../data/site";
+import { breadcrumbNode, graph, personNode, siteOrigin, websiteNode } from "../lib/seo";
 
 interface Props {
   title: string;
   description?: string;
   /** Path of the page, e.g. "/work/rinkview". Used for the canonical URL. */
   path?: string;
+  /** Absolute or root-relative image for Open Graph, 1200×630. */
   ogImage?: string;
+  ogImageAlt?: string;
   ogType?: "website" | "article" | "profile";
   publishedTime?: Date;
-  jsonLd?: Record<string, unknown>;
+  modifiedTime?: Date;
+  tags?: string[];
+  /** Extra schema.org nodes, merged into one @graph with the breadcrumbs. */
+  jsonLd?: Array<Record<string, unknown>> | Record<string, unknown>;
+  /** Name of the current page in the breadcrumb trail (defaults to the title). */
+  breadcrumbName?: string;
+  /** Keep the page out of search indexes (404, drafts). Drops the canonical link too. */
+  noindex?: boolean;
 }
 
 const {
@@ -21,17 +31,28 @@ const {
   description = site.description,
   path = Astro.url.pathname,
   ogImage = "/og.png",
+  ogImageAlt = `${site.name}, ${site.role}`,
   ogType = "website",
   publishedTime,
+  modifiedTime,
+  tags = [],
   jsonLd,
+  breadcrumbName,
+  noindex = false,
 } = Astro.props;
 
 const cleanPath = path.replace(/index\.html$/, "").replace(/\.html$/, "").replace(/\/$/, "") || "/";
 // Absolute URLs follow the deployed origin (see astro.config.mjs) so previews resolve before the domain moves.
-const origin = (Astro.site ?? new URL(site.url)).origin;
+const origin = siteOrigin(Astro);
 const canonical = new URL(cleanPath === "/" ? "/" : cleanPath, origin).href;
 const ogImageAbs = new URL(ogImage, origin).href;
 const fullTitle = title === site.name ? `${site.name} — ${site.role}` : `${title} — ${site.name}`;
+const extraNodes = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+// Every page carries the same WebSite and Person nodes so the @id references in page-specific nodes
+// (author, publisher, isPartOf) resolve within the page itself, which is how crawlers read them.
+const structured = noindex
+  ? null
+  : graph([websiteNode(Astro), personNode(Astro), ...extraNodes, cleanPath === "/" ? null : breadcrumbNode(Astro, cleanPath, breadcrumbName ?? title)]);
 ---
 
 <!DOCTYPE html>
@@ -45,7 +66,8 @@ const fullTitle = title === site.name ? `${site.name} — ${site.role}` : `${tit
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#f3efe6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#101215" media="(prefers-color-scheme: dark)" />
-    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex, follow" /> : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/icons/icon-32.png" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
@@ -62,15 +84,20 @@ const fullTitle = title === site.name ? `${site.name} — ${site.role}` : `${tit
     <meta property="og:image" content={ogImageAbs} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={`${site.name}, ${site.role}`} />
+    <meta property="og:image:alt" content={ogImageAlt} />
     <meta property="og:locale" content="en_US" />
+    {ogType === "profile" && <meta property="profile:first_name" content="Axel" />}
+    {ogType === "profile" && <meta property="profile:last_name" content="Cedercreutz" />}
+    {ogType === "article" && <meta property="article:author" content={`${origin}/about`} />}
     {publishedTime && <meta property="article:published_time" content={publishedTime.toISOString()} />}
+    {(modifiedTime ?? publishedTime) && <meta property="article:modified_time" content={(modifiedTime ?? publishedTime)!.toISOString()} />}
+    {tags.map((t) => <meta property="article:tag" content={t} />)}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImageAbs} />
 
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {structured && <script type="application/ld+json" set:html={JSON.stringify(structured)} />}
 
     {/* Theme before first paint, so there is no flash. Kept inline and tiny on purpose. */}
     <script is:inline>

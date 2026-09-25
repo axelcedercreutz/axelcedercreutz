@@ -69,6 +69,27 @@ Bricolage Grotesque for words, JetBrains Mono for anything that reads like a sco
 number the case studies. Motion is few and deliberate: a word-by-word headline, a marquee, reveals on scroll, a
 tilt on the work cards, short view transitions between pages. All of it is off under `prefers-reduced-motion`.
 
+## Search engines and AI assistants
+
+Everything a crawler needs is generated from the same content collections as the pages, so it cannot drift:
+
+- `/robots.txt` (`src/pages/robots.txt.ts`): allows everyone, with search engines, AI-search agents and
+  AI-training crawlers listed as separate blocks. To stay citable in AI answers but opt out of training,
+  change `Allow` to `Disallow` in the training block only. The `Sitemap:` line follows the deployed origin.
+- `/sitemap-index.xml`: every indexable page; posts carry `lastmod` from their frontmatter. The 404 page is
+  `noindex` and stays out.
+- `/llms.txt` and `/llms-full.txt` (`src/lib/llms.ts`): the llmstxt.org summary and the full Markdown of every
+  case study and published post, for assistants that read it.
+- `/rss.xml`: the feed, with categories and a self link.
+- Every page has a canonical URL, `robots` meta, full Open Graph and Twitter tags, and one JSON-LD `@graph`
+  with `WebSite`, `Person` (`#person`, referenced by every author/publisher field) and `BreadcrumbList`, plus
+  `SoftwareApplication` on case studies, `BlogPosting` on posts, `ProfilePage` on About. Case studies use
+  their cover, cropped to 1200×630, as the social image; everything else uses `/og.png`.
+- `npm test` checks all of it over `dist/`: robots directives, sitemap equals the set of indexable pages,
+  `@id` references resolve on the page, llms.txt links resolve, social images exist.
+
+Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, never from a hard-coded host.
+
 ## Deployment: Vercel
 
 Absolute URLs (canonical, Open Graph image, sitemap, feed) follow the deployed origin: `SITE_ORIGIN` if set,
@@ -92,5 +113,20 @@ First-time setup (a few minutes, in the Vercel dashboard):
 
 Before the domain switch, run `npm run check:release` and clear whatever it lists; it refuses while any
 fact on the page is still marked unconfirmed.
+
+After the domain switch, three small things stop the old and new hosts competing in search results:
+
+1. Redirect the `*.vercel.app` production URL to the domain, so there is one indexable copy. Add to `vercel.json`:
+   ```json
+   "redirects": [
+     { "source": "/:path*", "has": [{ "type": "host", "value": "axelcedercreutz.vercel.app" }],
+       "destination": "https://axelcedercreutz.fi/:path*", "permanent": true }
+   ]
+   ```
+   Do not add it earlier: while the domain still points at the old host, it would send visitors there.
+2. Redirect any URL the old site had that this one does not (`redirects` in `vercel.json`, `permanent: true`),
+   so existing links and rankings carry over. The old site's URL list is in `docs/HANDOFF.md`.
+3. Verify the domain in Google Search Console and Bing Webmaster Tools (a DNS TXT record) and submit
+   `https://axelcedercreutz.fi/sitemap-index.xml`. Both report indexing and structured-data errors.
 
 DNS for aced.fi and the product subdomains stays separate infrastructure work.
