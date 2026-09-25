@@ -33,7 +33,7 @@ Resolved from the CV (20 September 2026): LinkedIn URL, contact email.
 | # | Item | Why |
 |---|---|---|
 | 13 | List the URLs the current axelcedercreutz.fi serves (the old host could not be crawled from the build environment) and add `permanent` redirects for any that no longer exist | Keeps inbound links and rankings; otherwise they 404 |
-| 14 | Redirect `axelcedercreutz.vercel.app` to the domain (snippet in `docs/SITE.md`) | One indexable copy of the site |
+| 14 | ~~Redirect `axelcedercreutz.vercel.app` to the domain~~ Done in `vercel.json` once the domain went live | One indexable copy of the site |
 | 15 | Verify the domain in Google Search Console and Bing Webmaster Tools, submit the sitemap | Indexing and rich-result reports |
 | 16 | A photo for the `Person` structured data and About page | Knowledge-panel style results use it; the site currently points `image` at `/og.png` |
 
@@ -55,8 +55,8 @@ Deliberately not on the site, from the CV and cover letter: phone number, reloca
 
 ## Deliberately out of scope
 
-- DNS for axelcedercreutz.fi, aced.fi redirects, product subdomains such as rinkview.aced.fi.
-- Deploying the site. The current axelcedercreutz.fi host could not be inspected from the build environment and its source is not in any reachable repository.
+- aced.fi redirects and product subdomains such as rinkview.aced.fi.
+- The old axelcedercreutz.fi site could not be inspected from the build environment, so its URLs are not redirected yet (item 13).
 - Making private repositories public.
 - A CV download and a photo. Add the PDF under `public/` and link it from the hero when ready.
 - A real Budgy screenshot (needs a Supabase environment to render).
