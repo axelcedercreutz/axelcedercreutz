@@ -97,18 +97,22 @@ Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, w
 it as a separate function) and is covered by `tests/contact.test.mjs`. `npm run build && node scripts/serve.mjs`
 runs the function locally too.
 
-Spam goes into a sinkhole: it gets the same "sent" response a person gets and is dropped without an email.
-Bots learn nothing to adapt to. The traps:
+A real enquiry is never lost. This is a freelancer's inbox: a false positive is a lost client, a false
+negative is one extra email. The sender's email address, personal or not, never counts against them.
 
-1. **Honeypot.** A `website` field people never see or reach; anything typed in it is a bot.
-2. **Signed timer.** The page fetches a signed token when someone starts on the form. The submission must
-   carry it unforged and arrive at least three seconds later. Scripts that post straight to the endpoint,
-   or fill the form in a blink, fail.
-3. **Content.** More than three links, HTML anchors, BBCode, or a link as the name.
+- **Sinkhole, dropped:** only posts with no signed token, or a forged one. The page fetches a token before it
+  will submit, retries once, and tells the person to email instead if it still cannot get one. The form is
+  hidden without JavaScript. So only a script posting straight to the endpoint lands here. It gets the same
+  "sent" response a person gets, so it learns nothing.
+- **Flagged, delivered:** a filled honeypot field (bots fill it; password managers are asked not to), a send
+  within three seconds of starting, more than three links, HTML or BBCode links, a link as the name. The
+  subject starts with `[Flagged: reason]`, so a Gmail filter on `subject:"[Flagged:"` can file them
+  somewhere to skim rather than lose them.
+- **Refused with a message:** cross-origin posts, non-JSON bodies, oversized messages, a form left open for
+  hours, and invalid fields. The page says what to fix or offers the email address.
 
-Cross-origin posts, non-JSON bodies and oversized messages are refused outright. A person with a typo is told
-which field to fix. Dropped submissions are logged with their reason, never their content, in the Vercel
-function logs (`contact: sinkholed (honeypot)`), so it is easy to check the filter is not eating real mail.
+Function logs record the outcome and flags, never the content (`contact: sinkholed (no-or-forged-token)`,
+`contact: sent, flagged (honeypot)`).
 
 Setup, once:
 

@@ -1,15 +1,24 @@
 // Contact form backend. Framework-free so it runs as a Vercel Function (api/contact.js), in the local
 // preview server (scripts/serve.mjs) and under node:test with a fake mail sender.
 //
-// Spam handling is a sinkhole: anything that looks automated gets the exact same "sent" response a
-// person gets, and is quietly dropped. Bots learn nothing to adapt to. The traps:
-//   1. Honeypot: a "website" field hidden from people. Anything typed there is a bot.
-//   2. Signed timer: the page fetches a token (GET) when someone starts on the form; the POST must carry
-//      it, unforged, and arrive no sooner than MIN_FILL_MS after it was issued. Scripts that post
-//      straight to the endpoint, or fill the form in a blink, fail this.
-//   3. Content: link-stuffed messages and markup (HTML anchors, BBCode) are dropped.
-// Plus hard checks that do answer with an error: same-origin requests only, JSON only, size caps,
-// and field validation, so a real person with a typo is told what to fix.
+// Rule one: a real enquiry is never lost. This is a freelancer's inbox, so a false positive is a lost
+// client and a false negative is one extra email. Only what a person using the page cannot produce is
+// dropped; everything merely suspicious is delivered with a flag. The sender's email address, personal
+// or not, never counts against them.
+//
+// Sinkhole (dropped, answered with the same "sent" response a person gets, so bots learn nothing):
+//   - No token, or a forged one. The page fetches a signed token before it will submit and the form is
+//     hidden without JavaScript, so only a script posting straight to the endpoint lacks one.
+//
+// Flagged (delivered, subject prefixed with [Flagged: ...] so a mail filter can sort them):
+//   - Honeypot: the hidden "website" field has a value (bots fill it; so, rarely, does autofill).
+//   - Too fast: sent less than MIN_FILL_MS after the person started on the form (paste + autofill can).
+//   - Link-stuffed: more than MAX_LINKS links (a brief can have many).
+//   - Markup: HTML anchors or BBCode.
+//   - A link as the name.
+//
+// Refused with an error (the page tells the person what to do): cross-origin requests, non-JSON bodies,
+// oversized bodies, an expired token, invalid fields.
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 export const MIN_FILL_MS = 3_000;
@@ -49,16 +58,21 @@ const clean = (v, max) => (typeof v === "string" ? v.replace(/\r\n?/g, "\n").tri
 const oneLine = (s) => s.replace(/[\r\n\t]+/g, " ").trim();
 const EMAIL = /^[^\s@<>()[\]\\,;:"]+@[^\s@<>()[\]\\,;:"]+\.[^\s@<>()[\]\\,;:"]{2,}$/;
 
-/** Returns a reason string when the submission should be sinkholed, else null. */
-export function spamReason(fields, age) {
-  if (fields.website) return "honeypot";
-  if (age === null) return "no-or-forged-token";
-  if (age < MIN_FILL_MS) return "too-fast";
+/** True only when no person using the page could have produced this request. */
+export function isCertainlyAutomated(age) {
+  return age === null;
+}
+
+/** Reasons a delivered message looks suspicious. Empty for a normal message. */
+export function flags(fields, age) {
+  const out = [];
+  if (fields.website) out.push("honeypot");
+  if (age < MIN_FILL_MS) out.push("too-fast");
   const links = (fields.message.match(/https?:\/\/|www\./gi) || []).length;
-  if (links > MAX_LINKS) return "link-stuffed";
-  if (/<a\s+href|\[url[=\]]|\[link[=\]]/i.test(fields.message)) return "markup";
-  if (/https?:\/\/|www\./i.test(fields.name)) return "link-in-name";
-  return null;
+  if (links > MAX_LINKS) out.push("many-links");
+  if (/<a\s+href|\[url[=\]]|\[link[=\]]/i.test(fields.message)) out.push("markup");
+  if (/https?:\/\/|www\./i.test(fields.name)) out.push("link-in-name");
+  return out;
 }
 
 export function validate(fields) {
@@ -96,9 +110,8 @@ export function createContactHandler({ secret, configured, send, log = console.l
     };
     const age = tokenAge(secret, body.token, now());
 
-    const reason = spamReason(fields, age);
-    if (reason) {
-      log(`contact: sinkholed (${reason})`);
+    if (isCertainlyAutomated(age)) {
+      log("contact: sinkholed (no-or-forged-token)");
       return json(200, { ok: true });
     }
     if (age > MAX_TOKEN_AGE_MS) return json(400, { ok: false, code: "expired", error: "The form sat open for a while. Send it again." });
@@ -110,13 +123,20 @@ export function createContactHandler({ secret, configured, send, log = console.l
       log("contact: not configured (RESEND_API_KEY missing)");
       return json(503, { ok: false, code: "unavailable", error: "The form is not switched on yet." });
     }
+    const flagged = flags(fields, age);
     try {
-      await send({ name: fields.name, email: fields.email, message: fields.message, meta: `Filled in ${Math.round(age / 1000)} s after starting.` });
+      await send({
+        name: fields.name,
+        email: fields.email,
+        message: fields.message,
+        flags: flagged,
+        meta: `Filled in ${Math.round(age / 1000)} s after starting.`,
+      });
     } catch (err) {
       log(`contact: send failed (${err?.message ?? err})`);
       return json(502, { ok: false, code: "unavailable", error: "Sending failed on my side." });
     }
-    log("contact: sent");
+    log(flagged.length ? `contact: sent, flagged (${flagged.join(", ")})` : "contact: sent");
     return json(200, { ok: true });
   }
 
@@ -125,7 +145,10 @@ export function createContactHandler({ secret, configured, send, log = console.l
 
 /** Mail sender backed by Resend's HTTP API (https://resend.com/docs/api-reference/emails/send-email). */
 export function resendSender({ apiKey, to, from, fetchImpl = fetch }) {
-  return async ({ name, email, message, meta }) => {
+  return async ({ name, email, message, meta, flags = [] }) => {
+    const flagNote = flags.length
+      ? `\nFlagged as possible spam (${flags.join(", ")}). Delivered anyway: real enquiries are never dropped.`
+      : "";
     const res = await fetchImpl("https://api.resend.com/emails", {
       method: "POST",
       headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
@@ -133,8 +156,8 @@ export function resendSender({ apiKey, to, from, fetchImpl = fetch }) {
         from,
         to: [to],
         reply_to: `${name.replace(/[<>"]/g, "")} <${email}>`,
-        subject: `Site contact: ${name}`,
-        text: `${message}\n\n— ${name} <${email}>\nSent from the contact form on axelcedercreutz.fi. ${meta}\nReply to this email to answer them directly.`,
+        subject: `${flags.length ? `[Flagged: ${flags.join(", ")}] ` : ""}Site contact: ${name}`,
+        text: `${message}\n\n— ${name} <${email}>\nSent from the contact form on axelcedercreutz.fi. ${meta}${flagNote}\nReply to this email to answer them directly.`,
       }),
     });
     if (!res.ok) throw new Error(`Resend responded ${res.status}`);

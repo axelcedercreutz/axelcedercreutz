@@ -49,10 +49,12 @@ const jsonLd = {
             <p class="err" id="cf-message-err" data-err="message"></p>
           </div>
 
-          {/* The trap. People never see or reach this field; form-filling bots happily complete it. */}
+          {/* The trap. People never see or reach this field; form-filling bots happily complete it. The data-*
+              attributes ask password managers (1Password, LastPass, Bitwarden, Dashlane) not to fill it. A filled
+              trap only flags the message; it is still delivered. */}
           <div class="trap" aria-hidden="true">
             <label for="cf-website">Website (leave this empty)</label>
-            <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+            <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true" data-bwignore data-form-type="other" />
           </div>
 
           <div class="actions">
@@ -135,10 +137,14 @@ const jsonLd = {
       label.textContent = "Sending…";
       status.textContent = "";
       try {
+        // Never send without a token: the server drops tokenless posts as scripted. Retry once first.
+        let t = await getToken();
+        if (!t) { token = null; t = await getToken(); }
+        if (!t) { token = null; status.textContent = `Could not reach the server. ${fallback}`; return; }
         const res = await fetch("/api/contact", {
           method: "POST",
           headers: { "content-type": "application/json", accept: "application/json" },
-          body: JSON.stringify({ ...data, token: await getToken() }),
+          body: JSON.stringify({ ...data, token: t }),
         });
         const out = await res.json().catch(() => ({}));
         if (res.ok && out.ok) {
@@ -161,6 +167,7 @@ const jsonLd = {
 
     sent.querySelector("[data-again]")?.addEventListener("click", () => {
       token = null;
+      getToken(); // restart the timer now, while they write the next one
       status.textContent = "";
       sent.hidden = true;
       form.hidden = false;
