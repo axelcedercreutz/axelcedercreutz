@@ -59,7 +59,7 @@ export function websiteNode(astro: Pick<AstroGlobal, "site">) {
 /** Breadcrumbs from a path like /work/rinkview, with human labels for the fixed sections. */
 export function breadcrumbNode(astro: Pick<AstroGlobal, "site">, path: string, leafName?: string) {
   const o = siteOrigin(astro);
-  const labels: Record<string, string> = { work: "Work", blog: "Writing", about: "About" };
+  const labels: Record<string, string> = { work: "Work", blog: "Writing", about: "About", contact: "Contact" };
   const parts = path.split("/").filter(Boolean);
   const items = [{ name: "Home", url: `${o}/` }];
   parts.forEach((p, i) => {

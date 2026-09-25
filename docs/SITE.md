@@ -90,6 +90,41 @@ Everything a crawler needs is generated from the same content collections as the
 
 Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, which is the domain.
 
+## Contact form
+
+`/contact` posts to a Vercel Function, `api/contact.js`, which emails the message through
+[Resend](https://resend.com). The logic lives in `api/_contact-core.js` (the underscore stops Vercel deploying
+it as a separate function) and is covered by `tests/contact.test.mjs`. `npm run build && node scripts/serve.mjs`
+runs the function locally too.
+
+A real enquiry is never lost. This is a freelancer's inbox: a false positive is a lost client, a false
+negative is one extra email. The sender's email address, personal or not, never counts against them.
+
+- **Sinkhole, dropped:** only posts with no signed token, or a forged one. The page fetches a token before it
+  will submit, retries once, and tells the person to email instead if it still cannot get one. The form is
+  hidden without JavaScript. So only a script posting straight to the endpoint lands here. It gets the same
+  "sent" response a person gets, so it learns nothing.
+- **Flagged, delivered:** a filled honeypot field (bots fill it; password managers are asked not to), a send
+  within three seconds of starting, more than three links, HTML or BBCode links, a link as the name. The
+  subject starts with `[Flagged: reason]`, so a Gmail filter on `subject:"[Flagged:"` can file them
+  somewhere to skim rather than lose them.
+- **Refused with a message:** cross-origin posts, non-JSON bodies, oversized messages, a form left open for
+  hours, and invalid fields. The page says what to fix or offers the email address.
+
+Function logs record the outcome and flags, never the content (`contact: sinkholed (no-or-forged-token)`,
+`contact: sent, flagged (honeypot)`).
+
+Setup: the Resend account belongs to axel.cedercreutz@gmail.com and has `aced.fi` verified, so the form
+sends from `contact@aced.fi` (no mailbox needed; replies go to the person who wrote). The only thing Vercel
+needs is `RESEND_API_KEY` under **Settings → Environment Variables**, for Production and Preview. A new
+variable only reaches deployments built after it was added, so redeploy once after adding it.
+
+Optional variables: `CONTACT_TO` (default `axel.cedercreutz@gmail.com`), `CONTACT_FROM` (default
+`axelcedercreutz.fi contact form <contact@aced.fi>`; any address on a domain verified in Resend works) and
+`CONTACT_SECRET` (signs the form tokens; defaults to the API key).
+
+Until the key is set, the form says it is not switched on yet and offers the email address instead.
+
 ## Deployment: Vercel
 
 Every absolute URL (canonical, Open Graph image, sitemap, feed, robots, llms.txt, structured data) is
