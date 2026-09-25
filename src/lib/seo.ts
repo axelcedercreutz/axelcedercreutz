@@ -1,5 +1,5 @@
-// Shared helpers for metadata and structured data. Absolute URLs always follow the deployed origin
-// (see astro.config.mjs) so previews on Vercel and the final domain both describe themselves correctly.
+// Shared helpers for metadata and structured data. Absolute URLs always point at axelcedercreutz.fi
+// (the `site` in astro.config.mjs), whatever host serves the build.
 import type { AstroGlobal } from "astro";
 import { site } from "../data/site";
 

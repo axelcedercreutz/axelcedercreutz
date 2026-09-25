@@ -11,7 +11,7 @@ const root = resolve(new URL("..", import.meta.url).pathname);
 const dist = join(root, "dist");
 const registry = JSON.parse(readFileSync(join(root, "src/data/links.json"), "utf8")).links;
 const known = new Set(registry.map((l) => l.url));
-const SITE = (process.env.SITE_ORIGIN || "https://axelcedercreutz.fi").replace(/\/$/, "");
+const SITE = "https://axelcedercreutz.fi"; // every absolute URL on the site must use the domain
 
 function walk(dir, out = []) {
   for (const f of readdirSync(dir)) {

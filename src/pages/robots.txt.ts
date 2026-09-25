@@ -12,7 +12,7 @@ const crawlers = {
 };
 
 export function GET(context: APIContext) {
-  const origin = (context.site ?? new URL(site.url)).origin;
+  const origin = (context.site ?? new URL(site.url)).origin; // https://axelcedercreutz.fi
   const block = (agents: string[], comment: string) =>
     [`# ${comment}`, ...agents.map((a) => `User-agent: ${a}`), "Allow: /", ""].join("\n");
   const body = [

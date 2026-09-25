@@ -75,7 +75,7 @@ Everything a crawler needs is generated from the same content collections as the
 
 - `/robots.txt` (`src/pages/robots.txt.ts`): allows everyone, with search engines, AI-search agents and
   AI-training crawlers listed as separate blocks. To stay citable in AI answers but opt out of training,
-  change `Allow` to `Disallow` in the training block only. The `Sitemap:` line follows the deployed origin.
+  change `Allow` to `Disallow` in the training block only.
 - `/sitemap-index.xml`: every indexable page; posts carry `lastmod` from their frontmatter. The 404 page is
   `noindex` and stays out.
 - `/llms.txt` and `/llms-full.txt` (`src/lib/llms.ts`): the llmstxt.org summary and the full Markdown of every
@@ -88,13 +88,13 @@ Everything a crawler needs is generated from the same content collections as the
 - `npm test` checks all of it over `dist/`: robots directives, sitemap equals the set of indexable pages,
   `@id` references resolve on the page, llms.txt links resolve, social images exist.
 
-Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, never from a hard-coded host.
+Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, which is the domain.
 
 ## Deployment: Vercel
 
-Absolute URLs (canonical, Open Graph image, sitemap, feed) follow the deployed origin: `SITE_ORIGIN` if set,
-otherwise Vercel's production URL, otherwise `https://axelcedercreutz.fi`. Once the domain is attached in Vercel,
-the production URL becomes the domain and nothing needs changing.
+Every absolute URL (canonical, Open Graph image, sitemap, feed, robots, llms.txt, structured data) is
+`https://axelcedercreutz.fi/...`, whatever host serves the build. Previews and the `*.vercel.app` URL point
+search engines at the domain rather than at themselves.
 
 The site is static, so Vercel needs no adapter and no environment variables. `vercel.json` carries the
 framework hint, clean URLs (the build emits `work.html`, served as `/work`), long cache headers for hashed

@@ -42,7 +42,7 @@ const {
 } = Astro.props;
 
 const cleanPath = path.replace(/index\.html$/, "").replace(/\.html$/, "").replace(/\/$/, "") || "/";
-// Absolute URLs follow the deployed origin (see astro.config.mjs) so previews resolve before the domain moves.
+// Absolute URLs always use the domain (see astro.config.mjs).
 const origin = siteOrigin(Astro);
 const canonical = new URL(cleanPath === "/" ? "/" : cleanPath, origin).href;
 const ogImageAbs = new URL(ogImage, origin).href;
