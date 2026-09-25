@@ -21,21 +21,9 @@ const marquee = [
   "Ship, measure, repeat", "Floorball", "No cookies",
 ];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Person",
-  name: site.name,
-  jobTitle: site.role,
-  url: site.url + "/",
-  email: `mailto:${site.email}`,
-  sameAs: [site.github, site.linkedin],
-  worksFor: { "@type": "Organization", name: site.employer.name, url: site.employer.url },
-  knowsAbout: ["Product engineering", "Full-stack web development", "Data engineering", "Applied statistics", "TypeScript", "Python", "PostgreSQL", "BigQuery", "dbt"],
-  alumniOf: { "@type": "CollegeOrUniversity", name: "Aalto University" },
-};
 ---
 
-<Base title={site.name} ogType="profile" jsonLd={jsonLd}>
+<Base title={site.name} ogType="profile">
   <section class="hero grid-bg">
     <div class="wrap hero-grid">
       <div>

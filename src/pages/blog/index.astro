@@ -2,12 +2,21 @@
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import PostList from "../../components/PostList.astro";
+import { absolute, ids } from "../../lib/seo";
 
 const posts = (await getCollection("blog", ({ data }) => (import.meta.env.PROD ? !data.draft : true)))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const jsonLd = {
+  "@type": "Blog",
+  name: "Writing",
+  url: absolute(Astro, "/blog"),
+  isPartOf: { "@id": ids(Astro).website },
+  author: { "@id": ids(Astro).person },
+  blogPost: posts.map((p) => ({ "@type": "BlogPosting", headline: p.data.title, url: absolute(Astro, `/blog/${p.id}`), datePublished: p.data.pubDate.toISOString() })),
+};
 ---
 
-<Base title="Writing" description="Notes from the build: short, specific posts by Axel Cedercreutz about how things were made and what went sideways." path="/blog">
+<Base title="Writing" description="Notes from the build: short, specific posts by Axel Cedercreutz about how things were made and what went sideways." path="/blog" jsonLd={jsonLd}>
   <section class="section">
     <div class="wrap">
       <div class="section-head">

@@ -69,11 +69,32 @@ Bricolage Grotesque for words, JetBrains Mono for anything that reads like a sco
 number the case studies. Motion is few and deliberate: a word-by-word headline, a marquee, reveals on scroll, a
 tilt on the work cards, short view transitions between pages. All of it is off under `prefers-reduced-motion`.
 
+## Search engines and AI assistants
+
+Everything a crawler needs is generated from the same content collections as the pages, so it cannot drift:
+
+- `/robots.txt` (`src/pages/robots.txt.ts`): allows everyone, with search engines, AI-search agents and
+  AI-training crawlers listed as separate blocks. To stay citable in AI answers but opt out of training,
+  change `Allow` to `Disallow` in the training block only.
+- `/sitemap-index.xml`: every indexable page; posts carry `lastmod` from their frontmatter. The 404 page is
+  `noindex` and stays out.
+- `/llms.txt` and `/llms-full.txt` (`src/lib/llms.ts`): the llmstxt.org summary and the full Markdown of every
+  case study and published post, for assistants that read it.
+- `/rss.xml`: the feed, with categories and a self link.
+- Every page has a canonical URL, `robots` meta, full Open Graph and Twitter tags, and one JSON-LD `@graph`
+  with `WebSite`, `Person` (`#person`, referenced by every author/publisher field) and `BreadcrumbList`, plus
+  `SoftwareApplication` on case studies, `BlogPosting` on posts, `ProfilePage` on About. Case studies use
+  their cover, cropped to 1200×630, as the social image; everything else uses `/og.png`.
+- `npm test` checks all of it over `dist/`: robots directives, sitemap equals the set of indexable pages,
+  `@id` references resolve on the page, llms.txt links resolve, social images exist.
+
+Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, which is the domain.
+
 ## Deployment: Vercel
 
-Absolute URLs (canonical, Open Graph image, sitemap, feed) follow the deployed origin: `SITE_ORIGIN` if set,
-otherwise Vercel's production URL, otherwise `https://axelcedercreutz.fi`. Once the domain is attached in Vercel,
-the production URL becomes the domain and nothing needs changing.
+Every absolute URL (canonical, Open Graph image, sitemap, feed, robots, llms.txt, structured data) is
+`https://axelcedercreutz.fi/...`, whatever host serves the build. Previews and the `*.vercel.app` URL point
+search engines at the domain rather than at themselves.
 
 The site is static, so Vercel needs no adapter and no environment variables. `vercel.json` carries the
 framework hint, clean URLs (the build emits `work.html`, served as `/work`), long cache headers for hashed
@@ -85,12 +106,21 @@ First-time setup (a few minutes, in the Vercel dashboard):
 1. **Add New → Project → Import** `axelcedercreutz/axelcedercreutz`. Vercel detects Astro; leave build command
    `astro build` and output `dist` as detected. Node 22 or newer.
 2. Deploy. Every push to `main` then redeploys production; pull requests get preview URLs.
-3. **Settings → Domains**: add `axelcedercreutz.fi` and `www.axelcedercreutz.fi`, pick one as primary
-   (redirect the other). Vercel shows the DNS records to set at the registrar: an `A` record for the apex
-   and a `CNAME` for `www`. Until DNS changes, the `*.vercel.app` URL is the site.
+3. **Settings → Domains**: `axelcedercreutz.fi` is the production domain (done). If `www.axelcedercreutz.fi`
+   is added too, set it to redirect to the apex so there is one address.
 4. Optional: **Settings → Deployment Protection** off for production, so the URL is public.
 
-Before the domain switch, run `npm run check:release` and clear whatever it lists; it refuses while any
-fact on the page is still marked unconfirmed.
+`vercel.json` also redirects the `axelcedercreutz.vercel.app` alias to the domain (permanent), so there is one
+indexable copy of the site. Preview deployments keep their own URLs.
+
+Two things remain on the search side, both outside the repository:
+
+1. Redirect any URL the old site had that this one does not (`redirects` in `vercel.json`, `permanent: true`),
+   so existing links and rankings carry over.
+2. Verify the domain in Google Search Console and Bing Webmaster Tools (a DNS TXT record) and submit
+   `https://axelcedercreutz.fi/sitemap-index.xml`. Both report indexing and structured-data errors.
+
+`npm run check:release` lists whatever is still marked unconfirmed on the pages; clear it before linking the
+site from a CV.
 
 DNS for aced.fi and the product subdomains stays separate infrastructure work.

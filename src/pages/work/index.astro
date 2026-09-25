@@ -2,11 +2,22 @@
 import { getCollection } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import WorkCard from "../../components/WorkCard.astro";
+import { absolute, ids } from "../../lib/seo";
 
 const work = (await getCollection("work")).sort((a, b) => a.data.order - b.data.order);
+const jsonLd = {
+  "@type": "CollectionPage",
+  name: "Work",
+  url: absolute(Astro, "/work"),
+  isPartOf: { "@id": ids(Astro).website },
+  mainEntity: {
+    "@type": "ItemList",
+    itemListElement: work.map((w, i) => ({ "@type": "ListItem", position: i + 1, name: w.data.title, url: absolute(Astro, `/work/${w.id}`) })),
+  },
+};
 ---
 
-<Base title="Work" description="Case studies: RinkView, Banger Board and Budgy. Three products designed, built, shipped and run end to end by Axel Cedercreutz." path="/work">
+<Base title="Work" description="Case studies: RinkView, Banger Board and Budgy. Three products designed, built, shipped and run end to end by Axel Cedercreutz." path="/work" jsonLd={jsonLd}>
   <section class="section">
     <div class="wrap">
       <div class="section-head">
