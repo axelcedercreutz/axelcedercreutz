@@ -114,18 +114,14 @@ negative is one extra email. The sender's email address, personal or not, never 
 Function logs record the outcome and flags, never the content (`contact: sinkholed (no-or-forged-token)`,
 `contact: sent, flagged (honeypot)`).
 
-Setup, once:
-
-1. Sign up at resend.com **with axel.cedercreutz@gmail.com**. Resend's shared sender, `onboarding@resend.dev`,
-   can only deliver to the account's own address, which is exactly where these messages go, so no domain
-   setup is needed.
-2. Create an API key (sending access only).
-3. In Vercel: **Settings → Environment Variables**, add `RESEND_API_KEY` for Production and Preview, then
-   redeploy.
+Setup: the Resend account belongs to axel.cedercreutz@gmail.com and has `aced.fi` verified, so the form
+sends from `contact@aced.fi` (no mailbox needed; replies go to the person who wrote). The only thing Vercel
+needs is `RESEND_API_KEY` under **Settings → Environment Variables**, for Production and Preview. A new
+variable only reaches deployments built after it was added, so redeploy once after adding it.
 
 Optional variables: `CONTACT_TO` (default `axel.cedercreutz@gmail.com`), `CONTACT_FROM` (default
-`axelcedercreutz.fi <onboarding@resend.dev>`; to send from your own address, verify `axelcedercreutz.fi`
-in Resend first) and `CONTACT_SECRET` (signs the form tokens; defaults to the API key).
+`axelcedercreutz.fi contact form <contact@aced.fi>`; any address on a domain verified in Resend works) and
+`CONTACT_SECRET` (signs the form tokens; defaults to the API key).
 
 Until the key is set, the form says it is not switched on yet and offers the email address instead.
 

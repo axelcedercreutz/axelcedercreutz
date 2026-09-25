@@ -164,6 +164,10 @@ export function resendSender({ apiKey, to, from, fetchImpl = fetch }) {
   };
 }
 
+// aced.fi is verified in the Resend account (axel.cedercreutz@gmail.com), so any address on it can send.
+// The address needs no mailbox: replies go to the person who wrote, via reply_to.
+export const DEFAULT_FROM = "axelcedercreutz.fi contact form <contact@aced.fi>";
+
 /** Wires the handler to environment variables. See docs/SITE.md, "Contact form". */
 export function handlerFromEnv(env = process.env) {
   const apiKey = env.RESEND_API_KEY || "";
@@ -174,7 +178,7 @@ export function handlerFromEnv(env = process.env) {
     send: resendSender({
       apiKey,
       to: env.CONTACT_TO || "axel.cedercreutz@gmail.com",
-      from: env.CONTACT_FROM || "axelcedercreutz.fi <onboarding@resend.dev>",
+      from: env.CONTACT_FROM || DEFAULT_FROM,
     }),
   });
 }

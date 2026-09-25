@@ -177,3 +177,23 @@ test("line breaks cannot sneak into the one-line fields", async () => {
   await h.POST(post(good({ name: "Ada\r\nBcc: victim@example.com" })));
   assert.equal(sent[0].name.includes("\n"), false);
 });
+
+test("by default mail goes from the verified aced.fi domain to the Gmail inbox", async () => {
+  const { handlerFromEnv, DEFAULT_FROM } = await import("../api/_contact-core.js");
+  assert.match(DEFAULT_FROM, /<contact@aced\.fi>$/);
+  const calls = [];
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async (url, init) => { calls.push({ url: String(url), body: JSON.parse(init.body), auth: init.headers.authorization }); return new Response("{}", { status: 200 }); };
+  try {
+    const h = handlerFromEnv({ RESEND_API_KEY: "re_key" });
+    const { token } = await (await h.GET()).json();
+    await new Promise((r) => setTimeout(r, 5)); // token must be older than zero; the flag for "too fast" is fine here
+    const res = await h.POST(post(good({ token })));
+    assert.equal(res.status, 200);
+  } finally { globalThis.fetch = realFetch; }
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, "https://api.resend.com/emails");
+  assert.equal(calls[0].auth, "Bearer re_key");
+  assert.equal(calls[0].body.from, DEFAULT_FROM);
+  assert.deepEqual(calls[0].body.to, ["axel.cedercreutz@gmail.com"]);
+});

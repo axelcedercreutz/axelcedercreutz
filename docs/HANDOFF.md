@@ -41,7 +41,7 @@ Resolved from the CV (20 September 2026): LinkedIn URL, contact email.
 
 | # | Item | Why |
 |---|---|---|
-| 17 | Create a Resend account with axel.cedercreutz@gmail.com and add `RESEND_API_KEY` in Vercel (steps in `docs/SITE.md`, "Contact form") | Until then the form answers "not switched on yet" and shows the email address |
+| 17 | ~~Add `RESEND_API_KEY` in Vercel~~ Done. The form sends from `contact@aced.fi`, the domain verified in the existing Resend account. Redeploy once so the key reaches a build | Until a build has the key, the form answers "not switched on yet" and shows the email address |
 | 18 | Send yourself a test message from the live site once the key is set | The build environment cannot reach Resend or the live site, so delivery is untested end to end |
 | 19 | Optional: a Gmail filter on `subject:"[Flagged:"` to file suspicious messages in a label | They are still delivered, never dropped; the filter only keeps them out of the main inbox |
 
