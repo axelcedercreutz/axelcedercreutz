@@ -246,3 +246,19 @@ test("social cards: every page has a 1200×630 image on this origin, and case st
     if (p.path.startsWith("/work/")) assert.doesNotMatch(og, /\/og\.png$/, `${p.path}: case study should use its cover as the social image`);
   }
 });
+
+test("contact page: labelled fields, a hidden honeypot, a no-JavaScript fallback, and it is linked from every page", () => {
+  const page = pages.find((p) => p.path === "/contact");
+  assert.ok(page, "/contact is built");
+  for (const id of ["cf-name", "cf-email", "cf-message"]) {
+    assert.match(page.html, new RegExp(`<label[^>]*for="${id}"`), `${id} has a label`);
+    assert.match(page.html, new RegExp(`id="${id}"[^>]*required|required[^>]*id="${id}"`), `${id} is required`);
+  }
+  const trap = page.html.match(/<div class="trap"[^>]*>[\s\S]*?<\/div>/)?.[0] ?? "";
+  assert.match(trap, /aria-hidden="true"/, "honeypot hidden from assistive tech");
+  assert.match(trap, /name="website"[^>]*tabindex="-1"|tabindex="-1"[^>]*name="website"/, "honeypot out of the tab order");
+  assert.match(trap, /autocomplete="off"/, "browsers do not autofill the honeypot");
+  assert.match(page.html, /<noscript>[\s\S]*mailto:/, "no-JS visitors get the email address");
+  assert.match(page.html, /role="status"/, "results are announced");
+  for (const p of pages) assert.match(p.html, /href="\/contact"/, `${p.path}: links to /contact`);
+});

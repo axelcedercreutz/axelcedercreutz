@@ -1,0 +1,205 @@
+---
+import Base from "../layouts/Base.astro";
+import { site } from "../data/site";
+import { absolute, ids } from "../lib/seo";
+
+const jsonLd = {
+  "@type": "ContactPage",
+  name: "Contact",
+  url: absolute(Astro, "/contact"),
+  isPartOf: { "@id": ids(Astro).website },
+  about: { "@id": ids(Astro).person },
+};
+---
+
+<Base title="Contact" description="Get in touch with Axel Cedercreutz, product engineer in Helsinki: a short form that lands in his inbox, or plain email." path="/contact" jsonLd={jsonLd}>
+  <section class="section">
+    <div class="wrap two">
+      <div class="intro">
+        <p class="eyebrow">Contact</p>
+        <h1 class="h">Say hi. <span class="ember line">I read everything.</span></h1>
+        <div class="prose">
+          <p>Hiring a product engineer, want a second pair of eyes on a data problem, or want to argue about expected goals. Write a few lines and it lands straight in my inbox. I usually answer within a couple of days.</p>
+          <p>Prefer your own email client? <a href={`mailto:${site.email}`}>{site.email}</a> works just as well, and so does <a href={site.linkedin} rel="me noopener">LinkedIn</a>.</p>
+        </div>
+        <p class="note mono">The form sends your message to me by email through Resend, an email service. Nothing is stored on this site, and there are still no cookies or trackers.</p>
+      </div>
+
+      <div class="panel">
+        <noscript>
+          <p class="nojs">The form needs JavaScript to keep spam out. Email me at <a href={`mailto:${site.email}`}>{site.email}</a> instead.</p>
+          <style>.contact-form { display: none !important; }</style>
+        </noscript>
+
+        <form class="contact-form" data-contact novalidate>
+          <div class="field">
+            <label for="cf-name">Your name</label>
+            <input id="cf-name" name="name" type="text" autocomplete="name" required maxlength="120" aria-describedby="cf-name-err" />
+            <p class="err" id="cf-name-err" data-err="name"></p>
+          </div>
+          <div class="field">
+            <label for="cf-email">Email</label>
+            <input id="cf-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="200" aria-describedby="cf-email-hint cf-email-err" />
+            <p class="hint" id="cf-email-hint">So I can write back. Never shared.</p>
+            <p class="err" id="cf-email-err" data-err="email"></p>
+          </div>
+          <div class="field">
+            <label for="cf-message">Message</label>
+            <textarea id="cf-message" name="message" rows="7" required minlength="10" maxlength="5000" aria-describedby="cf-message-err"></textarea>
+            <p class="err" id="cf-message-err" data-err="message"></p>
+          </div>
+
+          {/* The trap. People never see or reach this field; form-filling bots happily complete it. */}
+          <div class="trap" aria-hidden="true">
+            <label for="cf-website">Website (leave this empty)</label>
+            <input id="cf-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="actions">
+            <button class="btn" type="submit">
+              <span data-label>Send message</span>
+              <svg viewBox="0 0 16 16" class="arrow" aria-hidden="true"><path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <p class="status" role="status" aria-live="polite" data-status></p>
+        </form>
+
+        <div class="sent" data-sent hidden tabindex="-1">
+          <p class="eyebrow">Delivered</p>
+          <h2>Thanks, it's in my inbox.</h2>
+          <p>I'll write back to the address you gave. If it's urgent, <a href={`mailto:${site.email}`}>email me</a> as well.</p>
+          <button class="btn ghost" type="button" data-again>Send another</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { site } from "../data/site";
+
+  // Progressive enhancement over a form that is hidden without JavaScript (see the noscript note).
+  // The token is fetched on first interaction, which also starts the server-side timer.
+  function init() {
+    const form = document.querySelector<HTMLFormElement>("form[data-contact]");
+    if (!form || form.dataset.ready) return;
+    form.dataset.ready = "1";
+    const status = form.querySelector<HTMLElement>("[data-status]")!;
+    const button = form.querySelector<HTMLButtonElement>("button[type=submit]")!;
+    const label = button.querySelector<HTMLElement>("[data-label]")!;
+    const sent = document.querySelector<HTMLElement>("[data-sent]")!;
+    let token: Promise<string | null> | null = null;
+
+    const getToken = () =>
+      (token ??= fetch("/api/contact", { headers: { accept: "application/json" }, cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((d) => d?.token ?? null)
+        .catch(() => null));
+
+    form.addEventListener("focusin", getToken, { once: true });
+    form.addEventListener("pointerdown", getToken, { once: true });
+
+    const setErrors = (errors: Record<string, string> = {}) => {
+      for (const el of form.querySelectorAll<HTMLElement>("[data-err]")) {
+        const msg = errors[el.dataset.err!] ?? "";
+        el.textContent = msg;
+        const input = form.elements.namedItem(el.dataset.err!) as HTMLInputElement | null;
+        if (input) input.setAttribute("aria-invalid", msg ? "true" : "false");
+      }
+      const first = Object.keys(errors)[0];
+      if (first) (form.elements.namedItem(first) as HTMLElement | null)?.focus();
+    };
+
+    // Clear a field's complaint as soon as it is edited.
+    form.addEventListener("input", (e) => {
+      const input = e.target as HTMLInputElement;
+      const err = input.name && form.querySelector<HTMLElement>(`[data-err="${input.name}"]`);
+      if (!err) return;
+      err.textContent = "";
+      input.setAttribute("aria-invalid", "false");
+    });
+
+    const fallback = `Email me at ${site.email} instead.`;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      setErrors();
+      const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      const local: Record<string, string> = {};
+      if (!data.name?.trim()) local.name = "Tell me who you are.";
+      if (!/^\S+@\S+\.\S{2,}$/.test(data.email?.trim() ?? "")) local.email = "That email address does not look right.";
+      if ((data.message?.trim().length ?? 0) < 10) local.message = "Say a little more, at least a sentence.";
+      if (Object.keys(local).length) { setErrors(local); status.textContent = "A couple of things to fix above."; return; }
+
+      button.disabled = true;
+      label.textContent = "Sending…";
+      status.textContent = "";
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "content-type": "application/json", accept: "application/json" },
+          body: JSON.stringify({ ...data, token: await getToken() }),
+        });
+        const out = await res.json().catch(() => ({}));
+        if (res.ok && out.ok) {
+          form.reset();
+          form.hidden = true;
+          sent.hidden = false;
+          sent.focus();
+          return;
+        }
+        if (out.code === "invalid") { setErrors(out.errors); status.textContent = "A couple of things to fix above."; }
+        else if (out.code === "expired") { token = null; getToken(); status.textContent = out.error; }
+        else status.textContent = `${out.error ?? "Something went wrong."} ${fallback}`;
+      } catch {
+        status.textContent = `Could not reach the server. ${fallback}`;
+      } finally {
+        button.disabled = false;
+        label.textContent = "Send message";
+      }
+    });
+
+    sent.querySelector("[data-again]")?.addEventListener("click", () => {
+      token = null;
+      status.textContent = "";
+      sent.hidden = true;
+      form.hidden = false;
+      (form.elements.namedItem("message") as HTMLElement).focus();
+    });
+  }
+
+  document.addEventListener("astro:page-load", init);
+</script>
+
+<style>
+  .h { font-size: clamp(2.2rem, 5vw, 4rem); margin: 12px 0 22px; max-width: 14ch; }
+  .ember { color: var(--ember-ink); }
+  .line { display: block; }
+  .two { display: grid; gap: 36px 64px; }
+  @media (min-width: 900px) { .two { grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); align-items: start; } }
+  .intro .prose { font-size: 1.08rem; }
+  .note { font-size: 0.74rem; color: var(--ink-3); line-height: 1.6; max-width: 52ch; margin-top: 22px; }
+  .panel { padding: clamp(20px, 3vw, 32px); border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); box-shadow: var(--shadow); }
+  .contact-form { display: grid; gap: 18px; }
+  .contact-form[hidden] { display: none; }
+  .field { display: grid; gap: 6px; }
+  label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-2); }
+  input, textarea { width: 100%; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line-2); border-radius: var(--radius-sm); padding: 12px 14px; transition: border-color 0.2s var(--ease), background 0.2s var(--ease); }
+  textarea { resize: vertical; min-height: 160px; line-height: 1.5; }
+  input:hover, textarea:hover { border-color: var(--ink-3); }
+  input:focus-visible, textarea:focus-visible { outline: 3px solid var(--ice); outline-offset: 1px; border-color: var(--ice); background: var(--card); }
+  input[aria-invalid="true"], textarea[aria-invalid="true"] { border-color: var(--ember-ink); }
+  .hint { margin: 0; font-size: 0.86rem; color: var(--ink-3); }
+  .err { margin: 0; font-size: 0.9rem; font-weight: 600; color: var(--ember-ink); }
+  .err:empty { display: none; }
+  .trap { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+  .actions { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+  .btn[disabled] { opacity: 0.6; cursor: progress; transform: none; }
+  .status { margin: 0; min-height: 1.4em; color: var(--ink-2); font-weight: 600; }
+  .sent { display: grid; gap: 10px; justify-items: start; outline: none; }
+  .sent[hidden] { display: none; }
+  .sent h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  .sent p { margin: 0 0 8px; color: var(--ink-2); }
+  .nojs { margin: 0; font-weight: 600; }
+  .panel { position: relative; }
+</style>

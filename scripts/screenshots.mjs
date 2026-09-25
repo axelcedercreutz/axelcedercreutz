@@ -26,6 +26,7 @@ const routes = [
   { path: "/work", name: "work" },
   { path: "/blog", name: "blog" },
   { path: "/about", name: "about" },
+  { path: "/contact", name: "contact" },
 ];
 
 const port = 8123;

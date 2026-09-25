@@ -37,6 +37,13 @@ Resolved from the CV (20 September 2026): LinkedIn URL, contact email.
 | 15 | Verify the domain in Google Search Console and Bing Webmaster Tools, submit the sitemap | Indexing and rich-result reports |
 | 16 | A photo for the `Person` structured data and About page | Knowledge-panel style results use it; the site currently points `image` at `/og.png` |
 
+## Contact form
+
+| # | Item | Why |
+|---|---|---|
+| 17 | Create a Resend account with axel.cedercreutz@gmail.com and add `RESEND_API_KEY` in Vercel (steps in `docs/SITE.md`, "Contact form") | Until then the form answers "not switched on yet" and shows the email address |
+| 18 | Send yourself a test message from the live site once the key is set | The build environment cannot reach Resend or the live site, so delivery is untested end to end |
+
 Deliberately not on the site, from the CV and cover letter: phone number, relocation readiness, and any reference to a specific club. The site stays team-neutral.
 
 ## Verified from

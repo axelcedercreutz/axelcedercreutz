@@ -12,7 +12,7 @@ Everything else, including case studies and a blog, lives at **[axelcedercreutz.
 
 ## This repository
 
-Also the source of [axelcedercreutz.fi](https://axelcedercreutz.fi): an [Astro](https://astro.build) site with static output, Markdown content collections for case studies and posts, no client framework, no analytics. See [docs/SITE.md](docs/SITE.md) for how it is organised and [docs/HANDOFF.md](docs/HANDOFF.md) for what still needs confirming.
+Also the source of [axelcedercreutz.fi](https://axelcedercreutz.fi): an [Astro](https://astro.build) site with static output, Markdown content collections for case studies and posts, a contact form backed by one Vercel Function, no client framework, no analytics. See [docs/SITE.md](docs/SITE.md) for how it is organised and [docs/HANDOFF.md](docs/HANDOFF.md) for what still needs confirming.
 
 ```sh
 npm install

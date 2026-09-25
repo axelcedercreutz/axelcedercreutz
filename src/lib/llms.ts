@@ -35,6 +35,7 @@ export async function llmsIndex(origin: string) {
     `- [About](${origin}/about): work history, education, languages, smaller public projects.`,
     `- [Work](${origin}/work): index of the case studies.`,
     `- [Writing](${origin}/blog): blog posts. RSS at ${origin}/rss.xml.`,
+    `- [Contact](${origin}/contact): a short form that emails Axel, or plain email.`,
     "",
     "## Case studies",
     "",

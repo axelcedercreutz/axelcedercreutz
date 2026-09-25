@@ -90,6 +90,41 @@ Everything a crawler needs is generated from the same content collections as the
 
 Helpers live in `src/lib/seo.ts`. Absolute URLs always come from `Astro.site`, which is the domain.
 
+## Contact form
+
+`/contact` posts to a Vercel Function, `api/contact.js`, which emails the message through
+[Resend](https://resend.com). The logic lives in `api/_contact-core.js` (the underscore stops Vercel deploying
+it as a separate function) and is covered by `tests/contact.test.mjs`. `npm run build && node scripts/serve.mjs`
+runs the function locally too.
+
+Spam goes into a sinkhole: it gets the same "sent" response a person gets and is dropped without an email.
+Bots learn nothing to adapt to. The traps:
+
+1. **Honeypot.** A `website` field people never see or reach; anything typed in it is a bot.
+2. **Signed timer.** The page fetches a signed token when someone starts on the form. The submission must
+   carry it unforged and arrive at least three seconds later. Scripts that post straight to the endpoint,
+   or fill the form in a blink, fail.
+3. **Content.** More than three links, HTML anchors, BBCode, or a link as the name.
+
+Cross-origin posts, non-JSON bodies and oversized messages are refused outright. A person with a typo is told
+which field to fix. Dropped submissions are logged with their reason, never their content, in the Vercel
+function logs (`contact: sinkholed (honeypot)`), so it is easy to check the filter is not eating real mail.
+
+Setup, once:
+
+1. Sign up at resend.com **with axel.cedercreutz@gmail.com**. Resend's shared sender, `onboarding@resend.dev`,
+   can only deliver to the account's own address, which is exactly where these messages go, so no domain
+   setup is needed.
+2. Create an API key (sending access only).
+3. In Vercel: **Settings → Environment Variables**, add `RESEND_API_KEY` for Production and Preview, then
+   redeploy.
+
+Optional variables: `CONTACT_TO` (default `axel.cedercreutz@gmail.com`), `CONTACT_FROM` (default
+`axelcedercreutz.fi <onboarding@resend.dev>`; to send from your own address, verify `axelcedercreutz.fi`
+in Resend first) and `CONTACT_SECRET` (signs the form tokens; defaults to the API key).
+
+Until the key is set, the form says it is not switched on yet and offers the email address instead.
+
 ## Deployment: Vercel
 
 Every absolute URL (canonical, Open Graph image, sitemap, feed, robots, llms.txt, structured data) is
