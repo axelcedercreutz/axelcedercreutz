@@ -125,6 +125,20 @@ Optional variables: `CONTACT_TO` (default `axel.cedercreutz@gmail.com`), `CONTAC
 
 Until the key is set, the form says it is not switched on yet and offers the email address instead.
 
+## Dependencies
+
+Dependabot (`.github/dependabot.yml`) checks npm packages and the GitHub Actions in CI every Monday morning,
+Helsinki time.
+
+- **Minor and patch updates** arrive grouped, one PR per ecosystem. The `dependabot-merge` job in
+  `.github/workflows/ci.yml` merges them after the build and every test pass, and Vercel deploys the result.
+- **Major updates** arrive one per package and wait for a person. They can break things by definition.
+- **Cooldown:** a release must be three days old (fourteen for a major) before it is proposed. Compromised or
+  broken releases are usually pulled within that window. Security updates skip the wait.
+
+Security alerts and security update PRs are switched on in the repository settings, under
+**Settings → Code security → Dependabot alerts / Dependabot security updates**. They use the same merge job.
+
 ## Deployment: Vercel
 
 Every absolute URL (canonical, Open Graph image, sitemap, feed, robots, llms.txt, structured data) is
