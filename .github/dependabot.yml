@@ -1,0 +1,39 @@
+# Keeps npm packages and GitHub Actions current. Minor and patch updates are grouped into one PR per
+# ecosystem and merged automatically once CI passes (see the dependabot-merge job in workflows/ci.yml).
+# Major updates arrive as separate PRs and wait for a person.
+#
+# The cooldown waits a few days after a release before proposing it: compromised or broken releases are
+# usually yanked within that window. Security updates ignore the cooldown and arrive straight away.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Helsinki
+    cooldown:
+      default-days: 3
+      semver-major-days: 14
+    groups:
+      npm-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: deps
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Helsinki
+    cooldown:
+      default-days: 3
+    groups:
+      actions-minor-and-patch:
+        update-types: [minor, patch]
+    commit-message:
+      prefix: ci
