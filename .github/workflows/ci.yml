@@ -17,7 +17,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          # Always the newest 22.x, not whatever the runner has cached: security releases land at once.
+          check-latest: true
           cache: npm
+      - name: Node is at or above the patched floor
+        run: node scripts/check-node.mjs
       - run: npm ci
       - run: npm run build
       - run: npm test

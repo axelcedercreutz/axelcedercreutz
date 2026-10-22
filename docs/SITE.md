@@ -136,6 +136,11 @@ Helsinki time.
 - **Cooldown:** a release must be three days old (fourteen for a major) before it is proposed. Compromised or
   broken releases are usually pulled within that window. Security updates skip the wait.
 
+**Node itself** is not an npm package, so Dependabot does not cover it. `engines.node` in `package.json` is a
+floor (`>=22.23.4`, the October 2026 security release). CI installs the newest Node 22 on every run and
+`scripts/check-node.mjs` fails the build below the floor. When Node publishes a security release, raise the
+floor to the patched version. Vercel applies Node patch releases to its own runtime.
+
 Security alerts and security update PRs are switched on in the repository settings, under
 **Settings → Code security → Dependabot alerts / Dependabot security updates**. They use the same merge job.
 
